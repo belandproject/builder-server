@@ -1,26 +1,47 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+import { PaginateQuery } from 'src/common/paginate/decorator';
+import { paginate } from 'src/common/paginate/paginate';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { Collection } from './entities/collection.entity';
 
 @Injectable()
 export class CollectionsService {
-  create(createCollectionDto: CreateCollectionDto) {
-    return 'This action adds a new collection';
+  constructor(
+    @InjectModel(Collection)
+    private collectionModel: typeof Collection,
+  ) {}
+
+  create(authorId: string, createCollectionDto: CreateCollectionDto) {
+    return this.collectionModel.create({
+      ...createCollectionDto,
+      eth_address: authorId,
+    });
   }
 
-  findAll() {
-    return `This action returns all collections`;
+  findAll(query: PaginateQuery) {
+    return paginate(query, this.collectionModel, {
+      sortableColumns: ['id'],
+      searchableColumns: [],
+      defaultSortBy: [['id', 'DESC']],
+      filterableColumns: {
+        id: [],
+        eth_address: [Op.in],
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} collection`;
+  findOne(id: string) {
+    return this.collectionModel.findByPk(id);
   }
 
-  update(id: number, updateCollectionDto: UpdateCollectionDto) {
-    return `This action updates a #${id} collection`;
+  update(id: string, updateCollectionDto: UpdateCollectionDto) {
+    return this.collectionModel.update(updateCollectionDto, { where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} collection`;
+  remove(id: string) {
+    return this.collectionModel.destroy({ where: { id } });
   }
 }

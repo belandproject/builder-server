@@ -26,6 +26,7 @@ export class ProjectsController {
 
   @Get()
   findAll(@Paginate() query: PaginateQuery, @Request() req) {
+    query.filter.eth_address = req.user.id;
     return this.projectsService.findAll(query);
   }
 

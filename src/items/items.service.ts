@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+import { PaginateQuery } from 'src/common/paginate/decorator';
+import { paginate } from 'src/common/paginate/paginate';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { Item } from './entities/item.entity';
 
 @Injectable()
 export class ItemsService {
-  create(createItemDto: CreateItemDto) {
-    return 'This action adds a new item';
+  constructor(
+    @InjectModel(Item)
+    private itemModel: typeof Item,
+  ) {}
+
+  create(authId: string, createItemDto: CreateItemDto) {
+    return this.itemModel.create({ ...createItemDto, eth_address: authId });
   }
 
-  findAll() {
-    return `This action returns all items`;
+  findAll(query: PaginateQuery) {
+    return paginate(query, this.itemModel, {
+      sortableColumns: ['id'],
+      searchableColumns: [],
+      defaultSortBy: [['id', 'DESC']],
+      filterableColumns: {
+        id: [],
+        eth_address: [Op.in],
+      },
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} item`;
+    return this.itemModel.findByPk(id);
   }
 
   update(id: number, updateItemDto: UpdateItemDto) {
-    return `This action updates a #${id} item`;
+    return this.itemModel.update(updateItemDto, { where: { id: id } });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} item`;
+    return this.itemModel.destroy({ where: { id } });
   }
 }

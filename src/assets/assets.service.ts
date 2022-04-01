@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+import { PaginateQuery } from 'src/common/paginate/decorator';
+import { paginate } from 'src/common/paginate/paginate';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
+import { Asset } from './entities/asset.entity';
 
 @Injectable()
 export class AssetsService {
-  create(createAssetDto: CreateAssetDto) {
-    return 'This action adds a new asset';
+  constructor(
+    @InjectModel(Asset)
+    private assetModel: typeof Asset,
+  ) {}
+
+  create(ownerId: string, createAssetDto: CreateAssetDto) {
+    return this.assetModel.create({ ...createAssetDto, owner: ownerId });
   }
 
-  findAll() {
-    return `This action returns all assets`;
+  findAll(query: PaginateQuery) {
+    return paginate(query, this.assetModel, {
+      sortableColumns: ['id'],
+      searchableColumns: [],
+      defaultSortBy: [['id', 'DESC']],
+      filterableColumns: {
+        id: [],
+        owner: [Op.in],
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} asset`;
+  findOne(id: string) {
+    return this.assetModel.findByPk(id);
   }
 
-  update(id: number, updateAssetDto: UpdateAssetDto) {
-    return `This action updates a #${id} asset`;
+  update(id: string, updateAssetDto: UpdateAssetDto) {
+    return this.assetModel.update(updateAssetDto, { where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} asset`;
+  remove(id: string) {
+    return this.assetModel.destroy({ where: { id } });
   }
 }

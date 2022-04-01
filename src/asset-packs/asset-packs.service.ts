@@ -1,26 +1,48 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+import { UpdateAssetDto } from 'src/assets/dto/update-asset.dto';
+import { PaginateQuery } from 'src/common/paginate/decorator';
+import { paginate } from 'src/common/paginate/paginate';
 import { CreateAssetPackDto } from './dto/create-asset-pack.dto';
 import { UpdateAssetPackDto } from './dto/update-asset-pack.dto';
+import { AssetPack } from './entities/asset-pack.entity';
 
 @Injectable()
 export class AssetPacksService {
-  create(createAssetPackDto: CreateAssetPackDto) {
-    return 'This action adds a new assetPack';
+  constructor(
+    @InjectModel(AssetPack)
+    private assetPackModel: typeof AssetPack,
+  ) {}
+
+  create(ownerId: string, createAssetPackDto: CreateAssetPackDto) {
+    return this.assetPackModel.create({
+      ...createAssetPackDto,
+      owner: ownerId,
+    });
   }
 
-  findAll() {
-    return `This action returns all assetPacks`;
+  findAll(query: PaginateQuery) {
+    return paginate(query, this.assetPackModel, {
+      sortableColumns: ['id'],
+      searchableColumns: [],
+      defaultSortBy: [['id', 'DESC']],
+      filterableColumns: {
+        id: [],
+        owner: [Op.in],
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} assetPack`;
+  findOne(id: string) {
+    return this.assetPackModel.findByPk(id);
   }
 
-  update(id: number, updateAssetPackDto: UpdateAssetPackDto) {
-    return `This action updates a #${id} assetPack`;
+  update(id: string, updateAssetDto: UpdateAssetDto) {
+    return this.assetPackModel.update(updateAssetDto, { where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} assetPack`;
+  remove(id: string) {
+    return this.assetPackModel.destroy({ where: { id } });
   }
 }

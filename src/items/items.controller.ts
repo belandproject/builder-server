@@ -29,7 +29,7 @@ export class ItemsController {
 
   @Get()
   findAll(@Paginate() query: PaginateQuery, @Request() req) {
-    query.filter.eth_address = req.user.id;
+    query.filter.owner = req.user.id;
     return this.itemsService.findAll(query);
   }
 

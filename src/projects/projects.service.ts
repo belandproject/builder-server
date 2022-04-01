@@ -20,7 +20,7 @@ export class ProjectsService {
   ): Promise<Project> {
     return this.projectModel.create({
       ...createProjectDto,
-      eth_address: auth.id,
+      owner: auth.id,
     });
   }
 
@@ -31,7 +31,7 @@ export class ProjectsService {
       defaultSortBy: [['id', 'DESC']],
       filterableColumns: {
         id: [],
-        eth_address: [Op.in],
+        owner: [Op.in],
       },
     });
   }

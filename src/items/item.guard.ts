@@ -7,6 +7,6 @@ export class ItemGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const { user, item } = context.switchToHttp().getRequest();
-    return user.id === item.eth_address;
+    return user.id === item.owner;
   }
 }

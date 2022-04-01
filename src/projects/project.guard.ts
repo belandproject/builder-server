@@ -7,6 +7,6 @@ export class ProjectGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const { user, project } = context.switchToHttp().getRequest();
-    return user.id === project.eth_address;
+    return user.id === project.owner;
   }
 }

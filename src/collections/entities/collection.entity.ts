@@ -24,10 +24,14 @@ export class Collection extends Model {
   @Column
   name: string;
 
+  @AllowNull(false)
+  @Column
+  symbol: string;
+
   @Index
   @AllowNull(false)
   @Column
-  eth_address: string;
+  owner: string;
 
   @AllowNull(false)
   @Column
@@ -51,9 +55,6 @@ export class Collection extends Model {
 
   @Column
   locked_at: Date;
-
-  @Column
-  reviewed_at: Date;
 
   @CreatedAt
   created_at: Date;

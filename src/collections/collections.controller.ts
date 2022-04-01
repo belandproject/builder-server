@@ -27,7 +27,7 @@ export class CollectionsController {
 
   @Get()
   findAll(@Paginate() query: PaginateQuery, @Request() req) {
-    query.filter.eth_address = req.user.id;
+    query.filter.owner = req.user.id;
     return this.collectionsService.findAll(query);
   }
 

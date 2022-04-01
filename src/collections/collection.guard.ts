@@ -8,7 +8,7 @@ export class CollectionGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const { user, collection } = context.switchToHttp().getRequest();
     return (
-      user.id === collection.eth_address &&
+      user.id === collection.owner &&
       !collection.is_published &&
       !collection.locked_at
     );

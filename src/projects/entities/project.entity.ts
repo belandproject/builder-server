@@ -35,7 +35,7 @@ export class Project extends Model {
 
   @AllowNull(false)
   @Column
-  eth_address: string;
+  owner: string;
 
   @AllowNull(false)
   @Column

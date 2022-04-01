@@ -1,1 +1,4 @@
-export class CreateCollectionDto {}
+export class CreateCollectionDto {
+  name: string;
+  symbol: string;
+}

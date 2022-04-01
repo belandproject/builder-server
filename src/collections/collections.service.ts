@@ -14,10 +14,10 @@ export class CollectionsService {
     private collectionModel: typeof Collection,
   ) {}
 
-  create(authorId: string, createCollectionDto: CreateCollectionDto) {
+  create(ownerId: string, createCollectionDto: CreateCollectionDto) {
     return this.collectionModel.create({
       ...createCollectionDto,
-      eth_address: authorId,
+      owner: ownerId,
     });
   }
 
@@ -28,7 +28,7 @@ export class CollectionsService {
       defaultSortBy: [['id', 'DESC']],
       filterableColumns: {
         id: [],
-        eth_address: [Op.in],
+        owner: [Op.in],
       },
     });
   }

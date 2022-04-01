@@ -23,7 +23,7 @@ export class AssetPack extends Model {
   @Index
   @AllowNull(false)
   @Column
-  eth_address: string;
+  owner: string;
 
   @AllowNull(false)
   @Column

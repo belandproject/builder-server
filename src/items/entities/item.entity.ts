@@ -30,7 +30,7 @@ export class Item extends Model {
 
   @AllowNull(false)
   @Column
-  eth_address: string;
+  owner: string;
 
   @AllowNull(false)
   @IsUUID(4)

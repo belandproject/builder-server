@@ -14,7 +14,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
       res.status(401).json({ message: error.message });
       return;
     }
-    req.state.user = { id: ethAddress };
+    req.user = { id: ethAddress };
     next();
   }
 }

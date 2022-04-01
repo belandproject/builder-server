@@ -1,26 +1,50 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+import { PaginateQuery } from 'src/common/paginate/decorator';
+import { paginate } from 'src/common/paginate/paginate';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { Project } from './entities/project.entity';
 
 @Injectable()
 export class ProjectsService {
-  create(createProjectDto: CreateProjectDto) {
-    return 'This action adds a new project';
+  constructor(
+    @InjectModel(Project)
+    private projectModel: typeof Project,
+  ) {}
+
+  create(
+    createProjectDto: CreateProjectDto,
+    auth: { id: string },
+  ): Promise<Project> {
+    return this.projectModel.create({
+      ...createProjectDto,
+      eth_address: auth.id,
+    });
   }
 
-  findAll() {
-    return `This action returns all projects`;
+  findAll(query: PaginateQuery) {
+    return paginate(query, this.projectModel, {
+      sortableColumns: ['id'],
+      searchableColumns: [],
+      defaultSortBy: [['id', 'DESC']],
+      filterableColumns: {
+        id: [],
+        eth_address: [Op.in],
+      },
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} project`;
+    this.projectModel.findByPk(id);
   }
 
   update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+    return this.projectModel.update(updateProjectDto, { where: { id } });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} project`;
+    return this.projectModel.destroy({ where: { id } });
   }
 }

@@ -5,6 +5,7 @@ import {
   Column,
   CreatedAt,
   Default,
+  Index,
   IsUUID,
   Model,
   PrimaryKey,
@@ -23,6 +24,7 @@ export class Collection extends Model {
   @Column
   name: string;
 
+  @Index
   @AllowNull(false)
   @Column
   eth_address: string;
@@ -31,6 +33,7 @@ export class Collection extends Model {
   @Column
   salt: string;
 
+  @Index
   @AllowNull(false)
   @Column
   contract_address: string;

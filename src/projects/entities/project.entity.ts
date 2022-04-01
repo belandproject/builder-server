@@ -17,30 +17,30 @@ export class Project extends Model {
   @Column
   id: string;
 
-  @AllowNull(true)
+  @AllowNull(false)
   @Column
   title: string;
 
   @Column
   description: string;
 
-  @AllowNull(true)
   @Column
   thumbnail: boolean;
 
+  @AllowNull(false)
   @IsUUID(4)
   @Column
   scene_id: string;
 
-  @AllowNull(true)
+  @AllowNull(false)
   @Column
   eth_address: string;
 
-  @AllowNull(true)
+  @AllowNull(false)
   @Column
   cols: number;
 
-  @AllowNull(true)
+  @AllowNull(false)
   @Column
   rows: number;
 

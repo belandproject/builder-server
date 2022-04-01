@@ -25,7 +25,6 @@ export class Item extends Model {
   @Column
   description: string;
 
-  @AllowNull(false)
   @Column
   thumbnail: string;
 
@@ -38,7 +37,6 @@ export class Item extends Model {
   @Column
   collection_id: string;
 
-  @AllowNull
   @Column
   blockchain_item_id: number;
 
@@ -54,7 +52,6 @@ export class Item extends Model {
   @Column
   price: string;
 
-  @AllowNull
   @Column
   beneficiary: string;
 

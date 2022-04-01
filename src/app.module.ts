@@ -7,6 +7,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { getDatabaseConfig } from './common/database.config';
 import { ItemsModule } from './items/items.module';
 import { CollectionsModule } from './collections/collections.module';
+import { AssetPacksModule } from './asset-packs/asset-packs.module';
+import { AssetsModule } from './assets/assets.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { CollectionsModule } from './collections/collections.module';
     ProjectsModule,
     CollectionsModule,
     ItemsModule,
+    AssetsModule,
+    AssetPacksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

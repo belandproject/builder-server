@@ -1,3 +1,4 @@
+import { JSONB } from 'sequelize';
 import {
   AllowNull,
   Column,
@@ -48,8 +49,29 @@ export class Project extends Model {
   @Column
   is_published: boolean;
 
+  @Column(JSONB)
+  scene: any;
+
   @Column
   creation_coords: string;
+
+  @Column
+  parcels: number;
+
+  @Column
+  transforms: number;
+
+  @Column
+  scripts: number;
+
+  @Column
+  entities: number;
+
+  @Column
+  gltf_shapes: number;
+
+  @Column
+  nft_shapes: number;
 
   @CreatedAt
   created_at: Date;

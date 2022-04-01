@@ -36,8 +36,8 @@ export class ProjectsService {
     });
   }
 
-  findOne(id: number) {
-    this.projectModel.findByPk(id);
+  findOne(id: string): Promise<Project> {
+    return this.projectModel.findByPk(id);
   }
 
   update(id: number, updateProjectDto: UpdateProjectDto) {

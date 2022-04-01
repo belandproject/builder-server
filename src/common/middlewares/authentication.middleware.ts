@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Authenticator, AuthLink } from 'beland-crypto';
 import { Request, Response, NextFunction } from 'express';
 
-export const AUTH_CHAIN_HEADER_PREFIX = 'x-identity-auth-chain-';
+const AUTH_CHAIN_HEADER_PREFIX = 'x-identity-auth-chain-';
 
 @Injectable()
 export class AuthenticationMiddleware implements NestMiddleware {

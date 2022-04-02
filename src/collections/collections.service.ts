@@ -37,11 +37,13 @@ export class CollectionsService {
     return this.collectionModel.findByPk(id);
   }
 
-  update(id: string, updateCollectionDto: UpdateCollectionDto) {
-    return this.collectionModel.update(updateCollectionDto, { where: { id } });
+  update(owner: string, id: string, updateCollectionDto: UpdateCollectionDto) {
+    return this.collectionModel.update(updateCollectionDto, {
+      where: { id, owner, is_published: false, locked_at: null },
+    });
   }
 
-  remove(id: string) {
-    return this.collectionModel.destroy({ where: { id } });
+  remove(owner: string, id: string) {
+    return this.collectionModel.destroy({ where: { id, owner } });
   }
 }

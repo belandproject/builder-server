@@ -29,7 +29,7 @@ export class AssetPacksService {
       defaultSortBy: [['id', 'DESC']],
       filterableColumns: {
         id: [],
-        owner: [Op.in],
+        owner: [],
       },
     });
   }
@@ -38,8 +38,8 @@ export class AssetPacksService {
     return this.assetPackModel.findByPk(id);
   }
 
-  update(id: string, updateAssetDto: UpdateAssetDto) {
-    return this.assetPackModel.update(updateAssetDto, { where: { id } });
+  update(id: string, updateAssetPackDto: UpdateAssetPackDto) {
+    return this.assetPackModel.update(updateAssetPackDto, { where: { id } });
   }
 
   remove(id: string) {

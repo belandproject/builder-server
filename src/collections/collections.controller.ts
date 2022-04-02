@@ -3,15 +3,13 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Request,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
-import { CollectionGuard } from './collection.guard';
+import { User } from 'src/common/user.decorator';
 import { CollectionsService } from './collections.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
@@ -36,18 +34,17 @@ export class CollectionsController {
     return this.collectionsService.findOne(id);
   }
 
-  @UseGuards(CollectionGuard)
   @Put(':id')
   update(
     @Param('id') id: string,
     @Body() updateCollectionDto: UpdateCollectionDto,
+    @User('id') userId,
   ) {
-    return this.collectionsService.update(id, updateCollectionDto);
+    return this.collectionsService.update(userId, id, updateCollectionDto);
   }
 
-  @UseGuards(CollectionGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.collectionsService.remove(id);
+  remove(@Param('id') id: string, @User('id') userId) {
+    return this.collectionsService.remove(userId, id);
   }
 }

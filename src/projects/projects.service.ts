@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -14,13 +13,10 @@ export class ProjectsService {
     private projectModel: typeof Project,
   ) {}
 
-  create(
-    createProjectDto: CreateProjectDto,
-    auth: { id: string },
-  ): Promise<Project> {
+  create(createProjectDto: CreateProjectDto, owner): Promise<Project> {
     return this.projectModel.create({
       ...createProjectDto,
-      owner: auth.id,
+      owner,
     });
   }
 
@@ -31,7 +27,7 @@ export class ProjectsService {
       defaultSortBy: [['id', 'DESC']],
       filterableColumns: {
         id: [],
-        owner: [Op.in],
+        owner: [],
       },
     });
   }
@@ -40,11 +36,11 @@ export class ProjectsService {
     return this.projectModel.findByPk(id);
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return this.projectModel.update(updateProjectDto, { where: { id } });
+  update(owner: string, id: string, updateProjectDto: UpdateProjectDto) {
+    return this.projectModel.update(updateProjectDto, { where: { id, owner } });
   }
 
-  remove(id: number) {
-    return this.projectModel.destroy({ where: { id } });
+  remove(owner: string, id: string) {
+    return this.projectModel.destroy({ where: { id, owner } });
   }
 }

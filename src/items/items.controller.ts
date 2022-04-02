@@ -13,16 +13,14 @@ import {
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
-import { ItemGuard } from './item.guard';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
-import { CollectionGuard } from 'src/collections/collection.guard';
+import { User } from 'src/common/user.decorator';
 
 @Controller('items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Post()
-  @UseGuards(CollectionGuard)
   create(@Body() createItemDto: CreateItemDto, @Request() req) {
     return this.itemsService.create(req.user.id, createItemDto);
   }
@@ -35,20 +33,20 @@ export class ItemsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.itemsService.findOne(+id);
+    return this.itemsService.findOne(id);
   }
 
-  @UseGuards(ItemGuard)
-  @UseGuards(CollectionGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-    return this.itemsService.update(+id, updateItemDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateItemDto: UpdateItemDto,
+    @User('id') userId,
+  ) {
+    return this.itemsService.update(userId, id, updateItemDto);
   }
 
-  @UseGuards(ItemGuard)
-  @UseGuards(CollectionGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.itemsService.remove(+id);
+  remove(@Param('id') id: string, @User('id') userId) {
+    return this.itemsService.remove(userId, id);
   }
 }

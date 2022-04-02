@@ -27,7 +27,7 @@ export class AssetPack extends Model {
 
   @AllowNull(false)
   @Column
-  title: string;
+  name: string;
 
   @Column
   thumbnail: boolean;

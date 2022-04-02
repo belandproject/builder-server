@@ -7,21 +7,20 @@ import {
   Delete,
   Request,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
-import { ProjectGuard } from './project.guard';
+import { User } from 'src/common/user.decorator';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
-    return this.projectsService.create(createProjectDto, req.user);
+  create(@Body() createProjectDto: CreateProjectDto, @User('id') userId) {
+    return this.projectsService.create(createProjectDto, userId);
   }
 
   @Get()
@@ -30,21 +29,22 @@ export class ProjectsController {
     return this.projectsService.findAll(query);
   }
 
-  @UseGuards(ProjectGuard)
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req) {
     return req.project;
   }
 
-  @UseGuards(ProjectGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(+id, updateProjectDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+    @User('id') userId,
+  ) {
+    return this.projectsService.update(userId, id, updateProjectDto);
   }
 
-  @UseGuards(ProjectGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(+id);
+  remove(@Param('id') id: string, @User('id') userId) {
+    return this.projectsService.remove(userId, id);
   }
 }

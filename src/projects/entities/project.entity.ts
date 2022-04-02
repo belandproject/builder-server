@@ -20,18 +20,13 @@ export class Project extends Model {
 
   @AllowNull(false)
   @Column
-  title: string;
+  name: string;
 
   @Column
   description: string;
 
   @Column
   thumbnail: boolean;
-
-  @AllowNull(false)
-  @IsUUID(4)
-  @Column
-  scene_id: string;
 
   @AllowNull(false)
   @Column

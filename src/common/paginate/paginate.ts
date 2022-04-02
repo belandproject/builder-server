@@ -17,6 +17,7 @@ export interface PaginateConfig<T> {
   defaultLimit?: number;
   where?: WhereOptions<T> | WhereOptions<T>[];
   filterableColumns?: { [column: string]: any[] };
+  attributes?: string[];
 }
 
 function parseFilter<T>(query: PaginateQuery, config: PaginateConfig<T>) {
@@ -78,6 +79,7 @@ export async function paginate<T>(
   }
 
   return repo.findAndCountAll({
+    attributes: config.attributes,
     limit: query.limit,
     offset: query.offset,
     where: {

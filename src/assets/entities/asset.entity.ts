@@ -5,7 +5,6 @@ import {
   AllowNull,
   Column,
   CreatedAt,
-  Default,
   Index,
   IsUUID,
   Model,

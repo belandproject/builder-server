@@ -27,10 +27,8 @@ export class CollectionsService {
   }
 
   async upsert(owner: string, id: string, data: UpsertCollectionDto) {
-    const colCount = await this.collectionModel.count({
-      where: { id },
-    });
-    if (colCount == 0) {
+    const collection = await this.collectionModel.findByPk(id);
+    if (!collection) {
       return this.collectionModel.create({
         ...data,
         id,
@@ -44,9 +42,8 @@ export class CollectionsService {
         owner,
       });
     }
-    return this.collectionModel.update(data, {
-      where: { id, owner, is_published: false, locked_at: null },
-    });
+    collection.setAttributes(data);
+    return collection.save();
   }
 
   findAll(query: PaginateQuery) {

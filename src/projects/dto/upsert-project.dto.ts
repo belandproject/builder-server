@@ -40,8 +40,11 @@ export class SceneComponentAttribute {
 
 export class Scene {
   @ValidateNested()
+  @Type(() => SceneEntityAttributes)
   entities: Map<string, SceneEntityAttributes>;
+
   @ValidateNested()
+  @Type(() => SceneComponentAttribute)
   components: Map<string, SceneComponentAttribute>;
 }
 

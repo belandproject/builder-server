@@ -5,6 +5,19 @@ import { paginate } from 'src/common/paginate/paginate';
 import { UpsertProjectDto } from './dto/upsert-project.dto';
 import { Project } from './entities/project.entity';
 
+const ATTRIBUTES = [
+  'id',
+  'name',
+  'description',
+  'thumbnail',
+  'owner',
+  'created_at',
+  'updated_at',
+  'cols',
+  'rows',
+  'is_published',
+];
+
 @Injectable()
 export class ProjectsService {
   constructor(
@@ -14,9 +27,12 @@ export class ProjectsService {
 
   findAll(query: PaginateQuery) {
     return paginate(query, this.projectModel, {
+      maxLimit: 100,
+      defaultLimit: 30,
       sortableColumns: ['id'],
       searchableColumns: [],
       defaultSortBy: [['id', 'DESC']],
+      attributes: ATTRIBUTES,
       filterableColumns: {
         id: [],
         owner: [],
@@ -29,7 +45,9 @@ export class ProjectsService {
   }
 
   async upsert(owner: string, id: string, upsertData: UpsertProjectDto) {
-    const project = await this.projectModel.findByPk(id);
+    const project = await this.projectModel.findByPk(id, {
+      attributes: ATTRIBUTES,
+    });
     if (!project) {
       return this.projectModel.create({
         ...upsertData,
@@ -42,8 +60,7 @@ export class ProjectsService {
     }
 
     project.setAttributes(upsertData);
-    await project.save();
-    return true;
+    return project.save();
   }
 
   remove(owner: string, id: string) {

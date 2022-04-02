@@ -78,9 +78,11 @@ export async function paginate<T>(
     where = parseFilter(query, config);
   }
 
+  const limit = query.limit || config.defaultLimit;
+
   return repo.findAndCountAll({
     attributes: config.attributes,
-    limit: query.limit,
+    limit: limit > config.maxLimit ? config.maxLimit : limit,
     offset: query.offset,
     where: {
       ...where,

@@ -18,14 +18,13 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery, @Request() req) {
-    query.filter.owner = req.user.id;
+  findAll(@Paginate() query: PaginateQuery) {
     return this.projectsService.findAll(query);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req) {
-    return req.project;
+    return this.projectsService.findOne(id);
   }
 
   @Post(':id')

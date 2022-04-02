@@ -3,15 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import {
   getCreate2Address,
-  keccak256,
   solidityKeccak256,
   solidityPack,
 } from 'ethers/lib/utils';
 import { Op } from 'sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
-import { CreateCollectionDto } from './dto/create-collection.dto';
-import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { UpsertCollectionDto } from './dto/upsert-collection.dto';
 import { Collection } from './entities/collection.entity';
 
 @Injectable()
@@ -28,17 +26,26 @@ export class CollectionsService {
     this.initCodeHash = this.configService.get('NFT_INIT_CODE_HASH');
   }
 
-  create(ownerId: string, createCollectionDto: CreateCollectionDto) {
-    return this.collectionModel.create({
-      ...createCollectionDto,
-      contract_address: computeCollectionAddress(
-        this.factoryAddress,
-        this.initCodeHash,
-        createCollectionDto.name,
-        createCollectionDto.symbol,
-        ownerId,
-      ),
-      owner: ownerId,
+  async upsert(owner: string, id: string, data: UpsertCollectionDto) {
+    const colCount = await this.collectionModel.count({
+      where: { id },
+    });
+    if (colCount == 0) {
+      return this.collectionModel.create({
+        ...data,
+        id,
+        contract_address: computeCollectionAddress(
+          this.factoryAddress,
+          this.initCodeHash,
+          data.name,
+          data.symbol,
+          owner,
+        ),
+        owner,
+      });
+    }
+    return this.collectionModel.update(data, {
+      where: { id, owner, is_published: false, locked_at: null },
     });
   }
 
@@ -58,14 +65,10 @@ export class CollectionsService {
     return this.collectionModel.findByPk(id);
   }
 
-  update(owner: string, id: string, updateCollectionDto: UpdateCollectionDto) {
-    return this.collectionModel.update(updateCollectionDto, {
+  async remove(owner: string, id: string) {
+    await this.collectionModel.destroy({
       where: { id, owner, is_published: false, locked_at: null },
     });
-  }
-
-  remove(owner: string, id: string) {
-    return this.collectionModel.destroy({ where: { id, owner } });
   }
 }
 

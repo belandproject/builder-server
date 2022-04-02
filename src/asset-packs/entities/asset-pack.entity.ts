@@ -1,10 +1,8 @@
-import { ARRAY } from 'sequelize';
-import { JSONB } from 'sequelize';
-import { STRING } from 'sequelize';
 import {
   AllowNull,
   Column,
   CreatedAt,
+  HasMany,
   Index,
   IsUUID,
   Model,
@@ -12,6 +10,7 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
+import { Asset } from 'src/assets/entities/asset.entity';
 
 @Table({ tableName: 'asset_packs' })
 export class AssetPack extends Model {
@@ -31,6 +30,9 @@ export class AssetPack extends Model {
 
   @Column
   thumbnail: boolean;
+
+  @HasMany(() => Asset)
+  assets: Asset[];
 
   @CreatedAt
   created_at: Date;

@@ -9,19 +9,13 @@ import {
   Put,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
+import { UpsertProjectDto } from './dto/upsert-project.dto';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
-
-  @Post()
-  create(@Body() createProjectDto: CreateProjectDto, @User('id') userId) {
-    return this.projectsService.create(createProjectDto, userId);
-  }
 
   @Get()
   findAll(@Paginate() query: PaginateQuery, @Request() req) {
@@ -34,13 +28,13 @@ export class ProjectsController {
     return req.project;
   }
 
-  @Put(':id')
-  update(
+  @Post(':id')
+  upsert(
     @Param('id') id: string,
-    @Body() updateProjectDto: UpdateProjectDto,
+    @Body() data: UpsertProjectDto,
     @User('id') userId,
   ) {
-    return this.projectsService.update(userId, id, updateProjectDto);
+    return this.projectsService.upsert(userId, id, data);
   }
 
   @Delete(':id')

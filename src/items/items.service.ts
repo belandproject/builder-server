@@ -1,12 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
-import { CreateItemDto } from './dto/create-item.dto';
-import { UpdateItemDto } from './dto/update-item.dto';
-import { Item } from './entities/item.entity';
+import { UpsertItemDto } from './dto/upsert-item.dto';
+import { Item, ItemType } from './entities/item.entity';
 
 @Injectable()
 export class ItemsService {
@@ -16,10 +14,6 @@ export class ItemsService {
     @InjectModel(Collection)
     private collectionModel: typeof Collection,
   ) {}
-
-  create(authId: string, createItemDto: CreateItemDto) {
-    return this.itemModel.create({ ...createItemDto, eth_address: authId });
-  }
 
   findAll(query: PaginateQuery) {
     return paginate(query, this.itemModel, {
@@ -38,23 +32,44 @@ export class ItemsService {
     return this.itemModel.findByPk(id);
   }
 
-  async update(owner: string, id: string, updateItemDto: UpdateItemDto) {
-    const item = await this.itemModel.findOne({ where: { id, owner } });
-    if (!item) {
-      throw new HttpException(`item ${id} not found`, HttpStatus.NOT_FOUND);
-    }
-    const collectionId = updateItemDto.collection_id || item.collection_id;
+  async _canAddItem(id: string, owner: string) {
     const collection = await this.collectionModel.findOne({
-      where: { id: collectionId, owner },
+      where: { id, owner, is_published: false, locked_at: null },
     });
 
     if (!collection)
       throw new HttpException(
-        `collection ${collectionId} not found`,
+        `collection ${id} not found`,
         HttpStatus.NOT_FOUND,
       );
+    return collection;
+  }
 
-    return this.itemModel.update(updateItemDto, { where: { id, owner } });
+  async upsert(owner: string, id: string, upsertData: UpsertItemDto) {
+    const data =
+      upsertData.type === ItemType.EMOTE
+        ? upsertData.emote
+        : upsertData.wearable;
+
+    const item = await this.itemModel.findOne({ where: { id } });
+    if (!item) {
+      await this._canAddItem(upsertData.collection_id, owner);
+      return this.itemModel.create({ ...upsertData, owner, id, data });
+    }
+
+    if (item.owner != owner) {
+      throw new HttpException('cannot edit item', HttpStatus.UNAUTHORIZED);
+    }
+
+    if (
+      upsertData.collection_id &&
+      item.collection_id != upsertData.collection_id
+    ) {
+      await this._canAddItem(upsertData.collection_id, owner);
+    }
+
+    item.setAttributes({ ...upsertData, data });
+    return item;
   }
 
   remove(owner: string, id: string) {

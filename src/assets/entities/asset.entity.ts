@@ -3,8 +3,10 @@ import { JSONB } from 'sequelize';
 import { STRING } from 'sequelize';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   CreatedAt,
+  ForeignKey,
   Index,
   IsUUID,
   Model,
@@ -12,6 +14,7 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
+import { AssetPack } from 'src/asset-packs/entities/asset-pack.entity';
 
 @Table({ tableName: 'assets' })
 export class Asset extends Model {
@@ -24,11 +27,15 @@ export class Asset extends Model {
   @Column
   name: string;
 
+  @ForeignKey(() => AssetPack)
   @Index
   @IsUUID(4)
   @AllowNull(false)
   @Column
   pack_id: string;
+
+  @BelongsTo(() => AssetPack)
+  pack: AssetPack;
 
   @Index
   @AllowNull(false)

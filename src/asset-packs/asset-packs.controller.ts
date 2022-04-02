@@ -1,26 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Request,
-  Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
+import { User } from 'src/common/user.decorator';
 import { AssetPacksService } from './asset-packs.service';
-import { CreateAssetPackDto } from './dto/create-asset-pack.dto';
-import { UpdateAssetPackDto } from './dto/update-asset-pack.dto';
+import { UpsertAssetPackDto } from './dto/upsert-asset-pack.dto';
 
 @Controller('asset-packs')
 export class AssetPacksController {
   constructor(private readonly assetPacksService: AssetPacksService) {}
-
-  @Post()
-  create(@Body() createAssetPackDto: CreateAssetPackDto, @Request() req) {
-    return this.assetPacksService.create(req.user.id, createAssetPackDto);
-  }
 
   @Get()
   findAll(@Paginate() query: PaginateQuery) {
@@ -32,16 +18,17 @@ export class AssetPacksController {
     return this.assetPacksService.findOne(id);
   }
 
-  @Put(':id')
-  update(
+  @Post(':id')
+  upsert(
     @Param('id') id: string,
-    @Body() updateAssetPackDto: UpdateAssetPackDto,
+    @Body() updateAssetPackDto: UpsertAssetPackDto,
+    @User('id') userId,
   ) {
-    return this.assetPacksService.update(id, updateAssetPackDto);
+    return this.assetPacksService.upsert(userId, id, updateAssetPackDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.assetPacksService.remove(id);
+  remove(@Param('id') id: string, @User('id') userId) {
+    return this.assetPacksService.remove(userId, id);
   }
 }

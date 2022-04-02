@@ -1,15 +1,19 @@
 import { JSONB } from 'sequelize';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   CreatedAt,
   Default,
+  ForeignKey,
+  Index,
   IsUUID,
   Model,
   PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
+import { Collection } from 'src/collections/entities/collection.entity';
 
 @Table({ tableName: 'items' })
 export class Item extends Model {
@@ -28,14 +32,20 @@ export class Item extends Model {
   @Column
   thumbnail: string;
 
+  @Index
   @AllowNull(false)
   @Column
   owner: string;
 
+  @Index
+  @ForeignKey(() => Collection)
   @AllowNull(false)
   @IsUUID(4)
   @Column
   collection_id: string;
+
+  @BelongsTo(() => Collection)
+  collection: Collection;
 
   @Column
   blockchain_item_id: number;
@@ -44,7 +54,6 @@ export class Item extends Model {
   @Column
   total_supply: number;
 
-  @AllowNull(false)
   @Column
   content_hash: string;
 

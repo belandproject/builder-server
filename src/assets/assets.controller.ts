@@ -1,26 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
 import { AssetsService } from './assets.service';
-import { CreateAssetDto } from './dto/create-asset.dto';
-import { UpdateAssetDto } from './dto/update-asset.dto';
+import { UpsertAssetDto } from './dto/upsert-asset.dto';
 
 @Controller('assets')
 export class AssetsController {
   constructor(private readonly assetsService: AssetsService) {}
-
-  @Post()
-  create(@Body() createAssetDto: CreateAssetDto, @User('id') owner) {
-    return this.assetsService.create(owner, createAssetDto);
-  }
 
   @Get()
   findAll(@Paginate() query: PaginateQuery) {
@@ -32,13 +18,13 @@ export class AssetsController {
     return this.assetsService.findOne(id);
   }
 
-  @Put(':id')
-  update(
+  @Post(':id')
+  upsert(
     @Param('id') id: string,
-    @Body() updateAssetDto: UpdateAssetDto,
+    @Body() updateAssetDto: UpsertAssetDto,
     @User('id') owner,
   ) {
-    return this.assetsService.update(owner, id, updateAssetDto);
+    return this.assetsService.upsert(owner, id, updateAssetDto);
   }
 
   @Delete(':id')

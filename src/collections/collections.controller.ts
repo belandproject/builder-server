@@ -6,22 +6,15 @@ import {
   Param,
   Delete,
   Request,
-  Put,
 } from '@nestjs/common';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
 import { CollectionsService } from './collections.service';
-import { CreateCollectionDto } from './dto/create-collection.dto';
-import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { UpsertCollectionDto } from './dto/upsert-collection.dto';
 
 @Controller('collections')
 export class CollectionsController {
   constructor(private readonly collectionsService: CollectionsService) {}
-
-  @Post()
-  create(@Body() createCollectionDto: CreateCollectionDto, @Request() req) {
-    return this.collectionsService.create(req.user.id, createCollectionDto);
-  }
 
   @Get()
   findAll(@Paginate() query: PaginateQuery, @Request() req) {
@@ -34,13 +27,13 @@ export class CollectionsController {
     return this.collectionsService.findOne(id);
   }
 
-  @Put(':id')
-  update(
+  @Post(':id')
+  upsert(
     @Param('id') id: string,
-    @Body() updateCollectionDto: UpdateCollectionDto,
+    @Body() data: UpsertCollectionDto,
     @User('id') userId,
   ) {
-    return this.collectionsService.update(userId, id, updateCollectionDto);
+    return this.collectionsService.upsert(userId, id, data);
   }
 
   @Delete(':id')

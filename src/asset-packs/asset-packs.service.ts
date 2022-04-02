@@ -1,11 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
-import { UpdateAssetDto } from 'src/assets/dto/update-asset.dto';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
-import { CreateAssetPackDto } from './dto/create-asset-pack.dto';
-import { UpdateAssetPackDto } from './dto/update-asset-pack.dto';
+import { UpsertAssetPackDto } from './dto/upsert-asset-pack.dto';
 import { AssetPack } from './entities/asset-pack.entity';
 
 @Injectable()
@@ -14,13 +11,6 @@ export class AssetPacksService {
     @InjectModel(AssetPack)
     private assetPackModel: typeof AssetPack,
   ) {}
-
-  create(ownerId: string, createAssetPackDto: CreateAssetPackDto) {
-    return this.assetPackModel.create({
-      ...createAssetPackDto,
-      owner: ownerId,
-    });
-  }
 
   findAll(query: PaginateQuery) {
     return paginate(query, this.assetPackModel, {
@@ -38,11 +28,25 @@ export class AssetPacksService {
     return this.assetPackModel.findByPk(id);
   }
 
-  update(id: string, updateAssetPackDto: UpdateAssetPackDto) {
-    return this.assetPackModel.update(updateAssetPackDto, { where: { id } });
+  async upsert(owner: string, id: string, upsertData: UpsertAssetPackDto) {
+    const pack = await this.assetPackModel.findByPk(id);
+    if (!pack) {
+      return this.assetPackModel.create({
+        ...upsertData,
+        owner,
+        id,
+      });
+    }
+    if (pack.owner != owner) {
+      throw new UnauthorizedException('cannot edit asset pack');
+    }
+
+    pack.setAttributes(upsertData);
+    await pack.save();
+    return pack;
   }
 
-  remove(id: string) {
-    return this.assetPackModel.destroy({ where: { id } });
+  remove(owner, id: string) {
+    return this.assetPackModel.destroy({ where: { id, owner } });
   }
 }

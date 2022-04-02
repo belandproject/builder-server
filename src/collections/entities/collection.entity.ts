@@ -2,9 +2,11 @@ import { ARRAY } from 'sequelize';
 import { STRING } from 'sequelize';
 import {
   AllowNull,
+  BelongsToMany,
   Column,
   CreatedAt,
   Default,
+  HasMany,
   Index,
   IsUUID,
   Model,
@@ -12,6 +14,7 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
+import { Item } from 'src/items/entities/item.entity';
 
 @Table({ tableName: 'collections' })
 export class Collection extends Model {
@@ -32,6 +35,9 @@ export class Collection extends Model {
   @AllowNull(false)
   @Column
   owner: string;
+
+  @HasMany(() => Item)
+  items: Item[];
 
   @Index
   @AllowNull(false)

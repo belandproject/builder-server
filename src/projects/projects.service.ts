@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
+import { UpsertProjectDto } from './dto/upsert-project.dto';
 import { Project } from './entities/project.entity';
 
 @Injectable()
@@ -12,13 +11,6 @@ export class ProjectsService {
     @InjectModel(Project)
     private projectModel: typeof Project,
   ) {}
-
-  create(createProjectDto: CreateProjectDto, owner): Promise<Project> {
-    return this.projectModel.create({
-      ...createProjectDto,
-      owner,
-    });
-  }
 
   findAll(query: PaginateQuery) {
     return paginate(query, this.projectModel, {
@@ -36,8 +28,22 @@ export class ProjectsService {
     return this.projectModel.findByPk(id);
   }
 
-  update(owner: string, id: string, updateProjectDto: UpdateProjectDto) {
-    return this.projectModel.update(updateProjectDto, { where: { id, owner } });
+  async upsert(owner: string, id: string, upsertData: UpsertProjectDto) {
+    const project = await this.projectModel.findByPk(id);
+    if (!project) {
+      return this.projectModel.create({
+        ...upsertData,
+        owner,
+        id,
+      });
+    }
+    if (project.owner != owner) {
+      throw new UnauthorizedException('cannot edit asset pack');
+    }
+
+    project.setAttributes(upsertData);
+    await project.save();
+    return true;
   }
 
   remove(owner: string, id: string) {

@@ -33,10 +33,6 @@ export class Collection extends Model {
   @Column
   owner: string;
 
-  @AllowNull(false)
-  @Column
-  salt: string;
-
   @Index
   @AllowNull(false)
   @Column

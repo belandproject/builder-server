@@ -20,6 +20,8 @@ import { ConfigModule } from '@nestjs/config';
 })
 export class ItemsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticationMiddleware).forRoutes('*');
+    consumer
+      .apply(AuthenticationMiddleware)
+      .forRoutes('/v1/items/(.*)', '/v1/items');
   }
 }

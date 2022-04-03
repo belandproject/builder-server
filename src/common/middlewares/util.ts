@@ -28,7 +28,12 @@ async function decodeAuthChain(req: any): Promise<string> {
       errorMessage = 'Missing ETH address in auth chain';
     } else {
       try {
-        const endpoint = (req.method + ':' + req.path).toLowerCase();
+        const endpoint = (
+          req.method +
+          ':' +
+          req.baseUrl.replace('/v1', '')
+        ).toLowerCase();
+        console.log(req);
         const res = await Authenticator.validateSignature(
           endpoint,
           authChain,

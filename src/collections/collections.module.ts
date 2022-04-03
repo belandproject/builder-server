@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { CollectionsController } from './collections.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -13,6 +13,8 @@ import { ConfigModule } from '@nestjs/config';
 })
 export class CollectionsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticationMiddleware).forRoutes('*');
+    consumer
+      .apply(AuthenticationMiddleware)
+      .forRoutes('/v1/collections/(.*)', '/v1/collections');
   }
 }

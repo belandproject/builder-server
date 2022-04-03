@@ -14,6 +14,8 @@ import { AssetPack } from 'src/asset-packs/entities/asset-pack.entity';
 })
 export class AssetsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticationMiddleware).forRoutes('*');
+    consumer
+      .apply(AuthenticationMiddleware)
+      .forRoutes('/v1/assets/(.*)', '/v1/assets');
   }
 }

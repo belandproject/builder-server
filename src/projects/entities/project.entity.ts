@@ -26,7 +26,7 @@ export class Project extends Model {
   description: string;
 
   @Column
-  thumbnail: boolean;
+  thumbnail: string;
 
   @AllowNull(false)
   @Column

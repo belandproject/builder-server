@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
@@ -41,8 +45,10 @@ export class ProjectsService {
     });
   }
 
-  findOne(id: string): Promise<Project> {
-    return this.projectModel.findByPk(id);
+  async findOne(owner: string, id: string): Promise<Project> {
+    const project = await this.projectModel.findOne({ where: { owner, id } });
+    if (!project) throw new NotFoundException('project not found');
+    return project;
   }
 
   async upsert(owner: string, id: string, upsertData: UpsertProjectDto) {

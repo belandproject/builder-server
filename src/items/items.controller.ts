@@ -14,8 +14,8 @@ export class ItemsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itemsService.findOne(id);
+  findOne(@Param('id') id: string, @User('id') userId) {
+    return this.itemsService.findOne(userId, id);
   }
 
   @Post(':id')

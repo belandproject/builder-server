@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { PaginateQuery } from 'src/common/paginate/decorator';
@@ -31,8 +36,10 @@ export class ItemsService {
     });
   }
 
-  findOne(id: string) {
-    return this.itemModel.findByPk(id);
+  async findOne(owner: string, id: string) {
+    const item = await this.itemModel.findOne({ where: { owner, id } });
+    if (!item) throw new NotFoundException('item not found');
+    return item;
   }
 
   async _canAddItem(id: string, owner: string) {

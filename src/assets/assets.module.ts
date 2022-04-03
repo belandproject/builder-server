@@ -14,12 +14,6 @@ import { AssetPack } from 'src/asset-packs/entities/asset-pack.entity';
 })
 export class AssetsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthenticationMiddleware)
-      .exclude({
-        path: '/assets',
-        method: RequestMethod.GET,
-      })
-      .forRoutes(AssetsController);
+    consumer.apply(AuthenticationMiddleware).forRoutes(AssetsController);
   }
 }

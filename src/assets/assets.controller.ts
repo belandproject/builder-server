@@ -9,13 +9,13 @@ export class AssetsController {
   constructor(private readonly assetsService: AssetsService) {}
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery) {
-    return this.assetsService.findAll(query);
+  findAll(@Paginate() query: PaginateQuery, @User('id') userId) {
+    return this.assetsService.findAll(userId, query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.assetsService.findOne(id);
+  findOne(@Param('id') id: string, @User('id') userId) {
+    return this.assetsService.findOne(userId, id);
   }
 
   @Post(':id')

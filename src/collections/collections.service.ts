@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import {
@@ -61,8 +61,12 @@ export class CollectionsService {
     });
   }
 
-  findOne(id: string) {
-    return this.collectionModel.findByPk(id);
+  async findOne(owner: string, id: string) {
+    const collection = await this.collectionModel.findOne({
+      where: { owner, id },
+    });
+    if (!collection) throw new NotFoundException('collection not found');
+    return collection;
   }
 
   async remove(owner: string, id: string) {

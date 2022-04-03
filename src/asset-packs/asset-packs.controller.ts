@@ -14,8 +14,8 @@ export class AssetPacksController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.assetPacksService.findOne(id);
+  findOne(@Param('id') id: string, @User('id') userId) {
+    return this.assetPacksService.findOne(userId, id);
   }
 
   @Post(':id')

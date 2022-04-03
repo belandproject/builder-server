@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
@@ -32,8 +36,10 @@ export class AssetPacksService {
     });
   }
 
-  findOne(id: string) {
-    return this.assetPackModel.findByPk(id);
+  async findOne(owner: string, id: string) {
+    const pack = await this.assetPackModel.findOne({ where: { owner, id } });
+    if (!pack) throw new NotFoundException('asset pack not found');
+    return pack;
   }
 
   async upsert(owner: string, id: string, upsertData: UpsertAssetPackDto) {

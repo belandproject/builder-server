@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -22,11 +23,12 @@ export class AssetsService {
     private assetPack: typeof AssetPack,
   ) {}
 
-  findAll(query: PaginateQuery) {
+  findAll(owner, query: PaginateQuery) {
     return paginate(query, this.assetModel, {
       sortableColumns: ['id'],
       searchableColumns: [],
       defaultSortBy: [['id', 'DESC']],
+      where: { owner },
       filterableColumns: {
         id: [],
         owner: [],
@@ -35,8 +37,10 @@ export class AssetsService {
     });
   }
 
-  findOne(id: string) {
-    return this.assetModel.findByPk(id);
+  async findOne(owner: string, id: string) {
+    const pack = await this.assetModel.findOne({ where: { owner, id } });
+    if (!pack) throw new NotFoundException('asset not found');
+    return pack;
   }
 
   async _canEdit(owner: string, id: string) {

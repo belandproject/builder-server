@@ -14,8 +14,8 @@ export class CollectionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collectionsService.findOne(id);
+  findOne(@Param('id') id: string, @User('id') userId) {
+    return this.collectionsService.findOne(userId, id);
   }
 
   @Post(':id')

@@ -9,8 +9,8 @@ export class AssetPacksController {
   constructor(private readonly assetPacksService: AssetPacksService) {}
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery) {
-    return this.assetPacksService.findAll(query);
+  findAll(@Paginate() query: PaginateQuery, @User('id') userId) {
+    return this.assetPacksService.findAll(userId, query);
   }
 
   @Get(':id')

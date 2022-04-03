@@ -9,7 +9,7 @@ export class Paginated<T> {
 }
 
 export interface PaginateConfig<T> {
-  relations?: RelationColumn<T>[];
+  include?: any[];
   sortableColumns: Column<T>[];
   searchableColumns?: Column<T>[];
   maxLimit?: number;
@@ -88,6 +88,7 @@ export async function paginate<T>(
       ...where,
       ...config.where,
     },
+    include: config.include,
     order: query.sortBy,
   });
 }

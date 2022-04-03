@@ -12,11 +12,19 @@ export class AssetPacksService {
     private assetPackModel: typeof AssetPack,
   ) {}
 
-  findAll(query: PaginateQuery) {
+  findAll(owner: string, query: PaginateQuery) {
+    const where: { owner: string } = { owner: owner ? owner : '' };
+    if (query.filter && query.filter.owner == 'default') {
+      where.owner = 'default';
+    } else if (!owner) {
+      throw new UnauthorizedException('Unauthorized');
+    }
     return paginate(query, this.assetPackModel, {
       sortableColumns: ['id'],
       searchableColumns: [],
       defaultSortBy: [['id', 'DESC']],
+      include: ['assets'],
+      where,
       filterableColumns: {
         id: [],
         owner: [],

@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
 import { CollectionsService } from './collections.service';
 import { UpsertCollectionDto } from './dto/upsert-collection.dto';
 
+@ApiBearerAuth()
+@ApiTags('Collections')
 @Controller('collections')
 export class CollectionsController {
   constructor(private readonly collectionsService: CollectionsService) {}

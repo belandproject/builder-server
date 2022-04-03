@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
 import { AssetsService } from './assets.service';
 import { UpsertAssetDto } from './dto/upsert-asset.dto';
 
+@ApiTags('Assets')
+@ApiBearerAuth()
 @Controller('assets')
 export class AssetsController {
   constructor(private readonly assetsService: AssetsService) {}

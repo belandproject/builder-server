@@ -33,7 +33,6 @@ async function decodeAuthChain(req: any): Promise<string> {
           ':' +
           req.baseUrl.replace('/v1', '')
         ).toLowerCase();
-        console.log(req);
         const res = await Authenticator.validateSignature(
           endpoint,
           authChain,

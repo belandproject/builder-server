@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
+import { ListProjectResponseDto } from './dto/list-project-response.dto';
 import { UpsertProjectDto } from './dto/upsert-project.dto';
 import { Project } from './entities/project.entity';
 
@@ -29,7 +30,7 @@ export class ProjectsService {
     private projectModel: typeof Project,
   ) {}
 
-  findAll(owner, query: PaginateQuery) {
+  findAll(owner, query: PaginateQuery): Promise<ListProjectResponseDto> {
     return paginate(query, this.projectModel, {
       maxLimit: 100,
       defaultLimit: 30,

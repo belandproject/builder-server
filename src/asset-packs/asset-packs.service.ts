@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
+import { ListAssetPackResponseDto } from './dto/list-asset-pack-response.dto';
 import { UpsertAssetPackDto } from './dto/upsert-asset-pack.dto';
 import { AssetPack } from './entities/asset-pack.entity';
 
@@ -16,7 +17,10 @@ export class AssetPacksService {
     private assetPackModel: typeof AssetPack,
   ) {}
 
-  findAll(owner: string, query: PaginateQuery) {
+  findAll(
+    owner: string,
+    query: PaginateQuery,
+  ): Promise<ListAssetPackResponseDto> {
     const where: { owner: string } = { owner: owner ? owner : '' };
     if (query.filter && query.filter.owner == 'default') {
       where.owner = 'default';

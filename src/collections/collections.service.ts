@@ -9,6 +9,7 @@ import {
 import { Op } from 'sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
+import { ListCollectionResponseDto } from './dto/list-collection-response.dto';
 import { UpsertCollectionDto } from './dto/upsert-collection.dto';
 import { Collection } from './entities/collection.entity';
 
@@ -46,7 +47,7 @@ export class CollectionsService {
     return collection.save();
   }
 
-  findAll(owner, query: PaginateQuery) {
+  findAll(owner, query: PaginateQuery): Promise<ListCollectionResponseDto> {
     return paginate(query, this.collectionModel, {
       maxLimit: 1000,
       defaultLimit: 30,

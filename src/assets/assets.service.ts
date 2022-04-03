@@ -11,6 +11,7 @@ import { Op } from 'sequelize';
 import { AssetPack } from 'src/asset-packs/entities/asset-pack.entity';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
+import { ListAssetResponseDto } from './dto/list-asset-response.dto';
 import { UpsertAssetDto } from './dto/upsert-asset.dto';
 import { Asset } from './entities/asset.entity';
 
@@ -23,7 +24,7 @@ export class AssetsService {
     private assetPack: typeof AssetPack,
   ) {}
 
-  findAll(owner, query: PaginateQuery) {
+  findAll(owner, query: PaginateQuery): Promise<ListAssetResponseDto> {
     return paginate(query, this.assetModel, {
       sortableColumns: ['id'],
       searchableColumns: [],

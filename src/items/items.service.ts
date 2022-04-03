@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
+import { ListItemResponseDto } from './dto/list-item-response.dto';
 import { UpsertItemDto } from './dto/upsert-item.dto';
 import { Item, ItemType } from './entities/item.entity';
 
@@ -20,7 +21,7 @@ export class ItemsService {
     private collectionModel: typeof Collection,
   ) {}
 
-  findAll(owner: string, query: PaginateQuery) {
+  findAll(owner: string, query: PaginateQuery): Promise<ListItemResponseDto> {
     return paginate(query, this.itemModel, {
       sortableColumns: ['id'],
       searchableColumns: [],

@@ -16,13 +16,13 @@ export class AssetPacksModule {
     consumer
       .apply(AuthenticationMiddleware)
       .exclude({
-        path: '/asset-packs',
+        path: '/v1/asset-packs',
         method: RequestMethod.GET,
       })
-      .forRoutes(AssetPacksController);
+      .forRoutes('*');
 
     consumer.apply(OptionalAuthenticationMiddleware).forRoutes({
-      path: '/asset-packs',
+      path: '/v1/asset-packs',
       method: RequestMethod.GET,
     });
   }

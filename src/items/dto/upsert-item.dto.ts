@@ -42,7 +42,17 @@ export class WearableRepresentation {
   overrideHides: WearableCategory[];
 }
 
-export class WearableData {
+export class Data {
+  @IsArray()
+  @IsString({ each: true })
+  tags: string[];
+
+  @IsEnum(ItemType)
+  @IsString()
+  __type: ItemType;
+}
+
+export class WearableData extends Data {
   @IsEnum(WearableCategory)
   category?: WearableCategory;
 
@@ -58,10 +68,6 @@ export class WearableData {
   @IsOptional()
   @IsEnum(WearableCategory, { each: true })
   hides: WearableCategory[];
-
-  @IsArray()
-  @IsString({ each: true })
-  tags: string[];
 }
 
 export enum EmoteCategory {
@@ -84,16 +90,12 @@ export class EmoteRepresentation {
   contents: Content[];
 }
 
-export class EmoteData {
+export class EmoteData extends Data {
   @IsEnum(EmoteCategory)
   category: EmoteCategory;
 
   @IsEnum(EmoteRepresentation)
   representations: EmoteRepresentation[];
-
-  @IsArray()
-  @IsString({ each: true })
-  tags: string[];
 }
 
 export class UpsertItemDto {
@@ -131,16 +133,19 @@ export class UpsertItemDto {
   @IsEnum(ItemType)
   type: ItemType;
 
-  @ValidateIf((o) => o.type === ItemType.EMOTE)
   @IsNotEmpty()
   @ValidateNested()
-  emote: EmoteData;
-
-  @ValidateIf((o) => o.type === ItemType.WEARABLE)
-  @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => WearableData)
-  wearable: WearableData;
+  @Type(() => Data, {
+    keepDiscriminatorProperty: true,
+    discriminator: {
+      property: '__type',
+      subTypes: [
+        { value: WearableData, name: ItemType.WEARABLE },
+        { value: EmoteData, name: ItemType.EMOTE },
+      ],
+    },
+  })
+  data: WearableData | EmoteData;
 
   @ValidateNested()
   @Type(() => AssetMetric)

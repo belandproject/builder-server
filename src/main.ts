@@ -6,11 +6,11 @@ import { ValidationPipe } from './common/pipe/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
   app.enableVersioning({
     defaultVersion: '1',
     type: VersioningType.URI,
   });
+  app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('Beland Builder API')
     .setDescription('The Builder API docs')
@@ -18,7 +18,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
-  app.setGlobalPrefix('v1');
   await app.listen(3000);
 }
 bootstrap();

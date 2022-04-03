@@ -57,15 +57,15 @@ export class ItemsService {
   }
 
   async upsert(owner: string, id: string, upsertData: UpsertItemDto) {
-    const data =
-      upsertData.type === ItemType.EMOTE
-        ? upsertData.emote
-        : upsertData.wearable;
-
+    upsertData.type = upsertData.data.__type;
     const item = await this.itemModel.findOne({ where: { id } });
     if (!item) {
       await this._canAddItem(upsertData.collection_id, owner);
-      return this.itemModel.create({ ...upsertData, owner, id, data });
+      return this.itemModel.create({
+        ...upsertData,
+        owner,
+        id,
+      });
     }
 
     if (item.owner != owner) {
@@ -79,7 +79,7 @@ export class ItemsService {
       await this._canAddItem(upsertData.collection_id, owner);
     }
 
-    item.setAttributes({ ...upsertData, data });
+    item.setAttributes({ ...upsertData });
     return item;
   }
 

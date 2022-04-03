@@ -12,6 +12,6 @@ import { AuthenticationMiddleware } from 'src/common/middlewares/authentication.
 })
 export class ProjectsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticationMiddleware).forRoutes(ProjectsController);
+    consumer.apply(AuthenticationMiddleware).forRoutes('*');
   }
 }

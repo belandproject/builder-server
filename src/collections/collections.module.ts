@@ -13,6 +13,6 @@ import { ConfigModule } from '@nestjs/config';
 })
 export class CollectionsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticationMiddleware).forRoutes(CollectionsController);
+    consumer.apply(AuthenticationMiddleware).forRoutes('*');
   }
 }

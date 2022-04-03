@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
 import { CollectionsService } from './collections.service';
@@ -17,9 +9,8 @@ export class CollectionsController {
   constructor(private readonly collectionsService: CollectionsService) {}
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery, @Request() req) {
-    query.filter.owner = req.user.id;
-    return this.collectionsService.findAll(query);
+  findAll(@Paginate() query: PaginateQuery, @User('id') userId) {
+    return this.collectionsService.findAll(userId, query);
   }
 
   @Get(':id')

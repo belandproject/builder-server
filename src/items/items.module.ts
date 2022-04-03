@@ -20,9 +20,6 @@ import { ConfigModule } from '@nestjs/config';
 })
 export class ItemsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthenticationMiddleware)
-      .exclude({ path: 'items', method: RequestMethod.GET })
-      .forRoutes(ItemsController);
+    consumer.apply(AuthenticationMiddleware).forRoutes(ItemsController);
   }
 }

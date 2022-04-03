@@ -25,13 +25,14 @@ export class ProjectsService {
     private projectModel: typeof Project,
   ) {}
 
-  findAll(query: PaginateQuery) {
+  findAll(owner, query: PaginateQuery) {
     return paginate(query, this.projectModel, {
       maxLimit: 100,
       defaultLimit: 30,
       sortableColumns: ['id'],
       searchableColumns: [],
       defaultSortBy: [['id', 'DESC']],
+      where: { owner },
       attributes: ATTRIBUTES,
       filterableColumns: {
         id: [],

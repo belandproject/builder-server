@@ -15,11 +15,14 @@ export class ItemsService {
     private collectionModel: typeof Collection,
   ) {}
 
-  findAll(query: PaginateQuery) {
+  findAll(owner: string, query: PaginateQuery) {
     return paginate(query, this.itemModel, {
       sortableColumns: ['id'],
       searchableColumns: [],
+      where: { owner },
       defaultSortBy: [['id', 'DESC']],
+      defaultLimit: 30,
+      maxLimit: 100,
       filterableColumns: {
         id: [],
         owner: [],

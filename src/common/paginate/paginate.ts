@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { WhereOptions, WhereOperators } from 'sequelize';
+import { WhereOperators } from 'sequelize';
 import { PaginateQuery } from './decorator';
 import { Column, RelationColumn, SortBy } from './helper';
 
@@ -15,7 +15,7 @@ export interface PaginateConfig<T> {
   maxLimit?: number;
   defaultSortBy?: SortBy<T>;
   defaultLimit?: number;
-  where?: WhereOptions<T> | WhereOptions<T>[];
+  where?: any;
   filterableColumns?: { [column: string]: any[] };
   attributes?: string[];
 }

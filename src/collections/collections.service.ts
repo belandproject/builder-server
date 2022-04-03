@@ -46,8 +46,11 @@ export class CollectionsService {
     return collection.save();
   }
 
-  findAll(query: PaginateQuery) {
+  findAll(owner, query: PaginateQuery) {
     return paginate(query, this.collectionModel, {
+      maxLimit: 1000,
+      defaultLimit: 30,
+      where: { owner },
       sortableColumns: ['id'],
       searchableColumns: [],
       defaultSortBy: [['id', 'DESC']],

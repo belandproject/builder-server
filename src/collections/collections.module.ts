@@ -13,9 +13,6 @@ import { ConfigModule } from '@nestjs/config';
 })
 export class CollectionsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthenticationMiddleware)
-      .exclude({ path: 'collections', method: RequestMethod.GET })
-      .forRoutes(CollectionsController);
+    consumer.apply(AuthenticationMiddleware).forRoutes(CollectionsController);
   }
 }

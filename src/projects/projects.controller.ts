@@ -18,8 +18,8 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery) {
-    return this.projectsService.findAll(query);
+  findAll(@Paginate() query: PaginateQuery, @User('id') userId) {
+    return this.projectsService.findAll(userId, query);
   }
 
   @Get(':id')

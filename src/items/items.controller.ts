@@ -9,8 +9,8 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery) {
-    return this.itemsService.findAll(query);
+  findAll(@Paginate() query: PaginateQuery, @User('id') userId) {
+    return this.itemsService.findAll(userId, query);
   }
 
   @Get(':id')

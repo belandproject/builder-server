@@ -11,7 +11,6 @@ async function bootstrap() {
     defaultVersion: '1',
     type: VersioningType.URI,
   });
-  app.setGlobalPrefix('v1');
   const config = new DocumentBuilder()
     .setTitle('Beland Builder API')
     .setDescription('The Builder API docs')
@@ -19,7 +18,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
-
+  app.setGlobalPrefix('v1');
   await app.listen(3000);
 }
 bootstrap();

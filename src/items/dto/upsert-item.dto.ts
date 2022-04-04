@@ -9,7 +9,6 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { AssetMetric } from 'src/assets/dto/upsert-asset.dto';
@@ -29,9 +28,8 @@ export class WearableRepresentation {
   mainFile: string;
 
   @IsArray()
-  @Type(() => Content)
-  @ValidateNested({ each: true })
-  contents: Content[];
+  @Type(() => String)
+  contents: string[];
 
   @IsOptional()
   @IsEnum(WearableCategory, { each: true })
@@ -85,9 +83,9 @@ export class EmoteRepresentation {
   mainFile: string;
 
   @IsArray()
-  @Type(() => Content)
+  @Type(() => String)
   @ValidateNested({ each: true })
-  contents: Content[];
+  contents: string[];
 }
 
 export class EmoteData extends Data {
@@ -104,7 +102,7 @@ export class UpsertItemDto {
   name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   description: string;
 
   @IsUUID(4)
@@ -151,16 +149,6 @@ export class UpsertItemDto {
   @Type(() => AssetMetric)
   metrics: AssetMetric;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Content)
-  contents: Content[];
-}
-
-export class Content {
-  @IsString()
-  path: string;
-
-  @IsString()
-  hash: string;
+  @Type(() => String)
+  contents: Map<string, string>;
 }

@@ -14,6 +14,7 @@ import {
   UpdatedAt,
 } from 'sequelize-typescript';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { EmoteData, WearableData } from '../dto/upsert-item.dto';
 
 @Table({ tableName: 'items' })
 export class Item extends Model {
@@ -71,13 +72,13 @@ export class Item extends Model {
   type: ItemType;
 
   @Column(JSONB)
-  data: any;
+  data: EmoteData | WearableData;
 
   @Column(JSONB)
   metrics: MetricsAttributes;
 
   @Column(JSONB)
-  contents: Contents;
+  contents: Map<string, string>;
 
   @CreatedAt
   created_at: Date;

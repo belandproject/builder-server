@@ -8,7 +8,6 @@ import {
   IsUUID,
   ValidateNested,
 } from 'class-validator';
-import { Content } from 'src/items/dto/upsert-item.dto';
 
 export enum ParameterType {
   BOOLEAN = 'boolean',
@@ -76,10 +75,8 @@ export class UpsertAssetDto {
   @Type(() => Action)
   actions: Action[];
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Content)
-  contents: Content[];
+  @Type(() => String)
+  contents: Map<string, string>;
 }
 
 export class Parameter {

@@ -12,6 +12,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  Unique,
   UpdatedAt,
 } from 'sequelize-typescript';
 import { Item } from 'src/items/entities/item.entity';
@@ -31,6 +32,9 @@ export class Collection extends Model {
   @Column
   symbol: string;
 
+  @Column
+  urn: string
+
   @Index
   @AllowNull(false)
   @Column
@@ -39,6 +43,7 @@ export class Collection extends Model {
   @HasMany(() => Item)
   items: Item[];
 
+  @Unique
   @Index
   @AllowNull(false)
   @Column

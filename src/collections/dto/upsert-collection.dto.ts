@@ -9,6 +9,10 @@ export class UpsertCollectionDto {
   @IsNotEmpty()
   symbol: string;
 
+  @IsString()
+  @IsNotEmpty()
+  urn: string;
+
   @IsArray()
   @IsString({ each: true })
   minters: string[];

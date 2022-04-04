@@ -45,7 +45,7 @@ export class ItemsService {
 
   async _canAddItem(id: string, owner: string) {
     const collection = await this.collectionModel.findOne({
-      where: { id, owner, is_public: false, locked_at: null },
+      where: { id, owner, is_published: false, locked_at: null },
     });
 
     if (!collection)
@@ -83,7 +83,10 @@ export class ItemsService {
     return item;
   }
 
-  remove(owner: string, id: string) {
-    return this.itemModel.destroy({ where: { id, owner } });
+  async remove(owner: string, id: string) {
+    const item = await this.itemModel.findOne({ where: { owner, id } });
+    if (!item) throw new NotFoundException('item not found');
+    await this._canAddItem(item.collection_id, owner);
+    return item.destroy();
   }
 }

@@ -80,6 +80,7 @@ export class ItemsService {
     }
 
     item.setAttributes({ ...upsertData });
+    await item.save();
     return item;
   }
 

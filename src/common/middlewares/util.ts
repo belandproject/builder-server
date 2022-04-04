@@ -18,7 +18,6 @@ async function decodeAuthChain(req: any): Promise<string> {
   const authChain = buildAuthChain(req);
   let ethAddress: string | null = null;
   let errorMessage: string | null = null;
-
   if (authChain.length === 0) {
     errorMessage = `Invalid auth chain`;
   } else {
@@ -28,10 +27,11 @@ async function decodeAuthChain(req: any): Promise<string> {
       errorMessage = 'Missing ETH address in auth chain';
     } else {
       try {
+        
         const endpoint = (
           req.method +
           ':' +
-          req.baseUrl.replace('/v1', '')
+          req._parsedUrl.pathname.replace('/v1', '')
         ).toLowerCase();
         const res = await Authenticator.validateSignature(
           endpoint,

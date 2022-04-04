@@ -20,7 +20,7 @@ const ATTRIBUTES = [
   'updated_at',
   'cols',
   'rows',
-  'is_published',
+  'is_public',
 ];
 
 @Injectable()

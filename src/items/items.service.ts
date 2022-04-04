@@ -45,7 +45,7 @@ export class ItemsService {
 
   async _canAddItem(id: string, owner: string) {
     const collection = await this.collectionModel.findOne({
-      where: { id, owner, is_published: false, locked_at: null },
+      where: { id, owner, is_public: false, locked_at: null },
     });
 
     if (!collection)

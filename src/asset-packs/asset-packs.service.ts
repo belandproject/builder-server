@@ -24,7 +24,7 @@ export class AssetPacksService {
     const where: { owner: string } = { owner: owner ? owner : '' };
     if (query.filter && query.filter.owner == 'default') {
       where.owner = 'default';
-    } else if (!owner) {
+    } else if (!owner || owner != query.filter.owner) {
       throw new UnauthorizedException('Unauthorized');
     }
     return paginate(query, this.assetPackModel, {

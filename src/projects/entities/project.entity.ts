@@ -42,7 +42,7 @@ export class Project extends Model {
 
   @Default(false)
   @Column
-  is_published: boolean;
+  is_public: boolean;
 
   @Column(JSONB)
   scene: any;

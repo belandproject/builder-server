@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -64,6 +65,9 @@ export class UpsertProjectDto {
 
   @IsNumber()
   rows: number;
+
+  @IsBoolean()
+  is_public: boolean;
 
   @Type(() => Scene)
   @ValidateNested()

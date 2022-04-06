@@ -50,7 +50,9 @@ export class AssetPacksService {
   }
 
   async upsert(owner: string, id: string, upsertData: UpsertAssetPackDto) {
-    const pack = await this.assetPackModel.findByPk(id);
+    const pack = await this.assetPackModel.findByPk(id, {
+      include: ['assets'],
+    });
     const assets = upsertData.assets
       ? upsertData.assets.map((asset) => {
           return { ...asset, owner, pack_id: id };
@@ -73,7 +75,18 @@ export class AssetPacksService {
     }
 
     pack.setAttributes(upsertData);
-
+    if (upsertData.assets && upsertData.assets.length > 0) {
+      await this.assetModel.destroy({ where: { pack_id: pack.id } });
+      await this.assetModel.bulkCreate(
+        upsertData.assets.map((asset) => {
+          return {
+            ...asset,
+            pack_id: pack.id,
+            owner,
+          };
+        }),
+      );
+    }
     await pack.save();
     return pack;
   }

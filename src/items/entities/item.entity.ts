@@ -40,7 +40,6 @@ export class Item extends Model {
 
   @Index
   @ForeignKey(() => Collection)
-  @AllowNull(false)
   @IsUUID(4)
   @Column
   collection_id: string;

@@ -10,7 +10,7 @@ import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
 import { ListItemResponseDto } from './dto/list-item-response.dto';
 import { UpsertItemDto } from './dto/upsert-item.dto';
-import { Item, ItemType } from './entities/item.entity';
+import { Item } from './entities/item.entity';
 
 @Injectable()
 export class ItemsService {
@@ -60,7 +60,11 @@ export class ItemsService {
     upsertData.type = upsertData.data.__type;
     const item = await this.itemModel.findOne({ where: { id } });
     if (!item) {
-      await this._canAddItem(upsertData.collection_id, owner);
+      if (upsertData.collection_id) {
+        await this._canAddItem(upsertData.collection_id, owner);
+      }
+
+
       return this.itemModel.create({
         ...upsertData,
         owner,
@@ -87,7 +91,9 @@ export class ItemsService {
   async remove(owner: string, id: string) {
     const item = await this.itemModel.findOne({ where: { owner, id } });
     if (!item) throw new NotFoundException('item not found');
-    await this._canAddItem(item.collection_id, owner);
+    if (item.collection_id) {
+      await this._canAddItem(item.collection_id, owner);
+    }
     return item.destroy();
   }
 }

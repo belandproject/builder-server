@@ -105,8 +105,8 @@ export class UpsertItemDto {
   @IsOptional()
   description: string;
 
+  @IsOptional()
   @IsUUID(4)
-  @IsNotEmpty()
   collection_id: string;
 
   @IsOptional()

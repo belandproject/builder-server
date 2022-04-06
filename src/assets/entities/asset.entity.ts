@@ -30,7 +30,6 @@ export class Asset extends Model {
   @ForeignKey(() => AssetPack)
   @Index
   @IsUUID(4)
-  @AllowNull(false)
   @Column
   pack_id: string;
 
@@ -50,7 +49,7 @@ export class Asset extends Model {
   script: string;
 
   @Column
-  thumbnail: boolean;
+  thumbnail: string;
 
   @Column(ARRAY(STRING))
   tags: Array<string>;

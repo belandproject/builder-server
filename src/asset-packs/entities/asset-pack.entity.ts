@@ -29,7 +29,7 @@ export class AssetPack extends Model {
   name: string;
 
   @Column
-  thumbnail: boolean;
+  thumbnail: string;
 
   @HasMany(() => Asset)
   assets: Asset[];

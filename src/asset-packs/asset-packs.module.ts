@@ -5,11 +5,12 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { AssetPack } from './entities/asset-pack.entity';
 import { AuthenticationMiddleware } from 'src/common/middlewares/authentication.middleware';
 import { OptionalAuthenticationMiddleware } from 'src/common/middlewares/optional-authentication.middleware';
+import { Asset } from 'src/assets/entities/asset.entity';
 
 @Module({
   controllers: [AssetPacksController],
   providers: [AssetPacksService],
-  imports: [SequelizeModule.forFeature([AssetPack])],
+  imports: [SequelizeModule.forFeature([AssetPack, Asset])],
 })
 export class AssetPacksModule {
   configure(consumer: MiddlewareConsumer) {

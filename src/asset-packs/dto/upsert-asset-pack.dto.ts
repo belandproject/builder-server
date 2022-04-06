@@ -1,4 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { UpsertAssetDto } from 'src/assets/dto/upsert-asset.dto';
 
 export class UpsertAssetPackDto {
   @IsString()
@@ -8,4 +10,10 @@ export class UpsertAssetPackDto {
   @IsOptional()
   @IsString()
   thumbnail: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested()
+  @Type(() => UpsertAssetDto)
+  assets: UpsertAssetDto[]
 }

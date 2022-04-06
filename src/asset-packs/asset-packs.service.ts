@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Asset } from 'src/assets/entities/asset.entity';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
 import { ListAssetPackResponseDto } from './dto/list-asset-pack-response.dto';
@@ -15,6 +16,8 @@ export class AssetPacksService {
   constructor(
     @InjectModel(AssetPack)
     private assetPackModel: typeof AssetPack,
+    @InjectModel(Asset)
+    private assetModel: typeof Asset,
   ) {}
 
   findAll(
@@ -48,18 +51,29 @@ export class AssetPacksService {
 
   async upsert(owner: string, id: string, upsertData: UpsertAssetPackDto) {
     const pack = await this.assetPackModel.findByPk(id);
+    const assets = upsertData.assets
+      ? upsertData.assets.map((asset) => {
+          return { ...asset, owner, pack_id: id };
+        })
+      : [];
+
     if (!pack) {
-      return this.assetPackModel.create({
-        ...upsertData,
-        owner,
-        id,
-      });
+      return this.assetPackModel.create(
+        {
+          ...upsertData,
+          owner,
+          assets,
+          id,
+        },
+        { include: ['assets'] },
+      );
     }
     if (pack.owner != owner) {
       throw new UnauthorizedException('cannot edit asset pack');
     }
 
     pack.setAttributes(upsertData);
+
     await pack.save();
     return pack;
   }

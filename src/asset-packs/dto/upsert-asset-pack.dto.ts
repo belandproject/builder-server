@@ -8,10 +8,6 @@ export class UpsertAssetPackDto {
   name: string;
 
   @IsOptional()
-  @IsString()
-  thumbnail: string;
-
-  @IsOptional()
   @IsArray()
   @ValidateNested()
   @Type(() => UpsertAssetDto)

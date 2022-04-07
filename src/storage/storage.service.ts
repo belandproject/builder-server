@@ -21,22 +21,27 @@ export class StorageService {
     });
   }
 
-  async delete(prefix: string) {
-    console.log(prefix)
-    await this.s3.listObjects({
-      Bucket: this.BUCKET_NAME,
-      Prefix: prefix
-    }, async (err, data) => {
-      console.log(data);
-      if (!err) {
-        for (let content of data.Contents) {
-          this.s3.deleteObject({
-            Bucket: this.BUCKET_NAME,
-            Key: content.Key
-          })
+  delete(prefix: string) {
+    this.s3.listObjects(
+      {
+        Bucket: this.BUCKET_NAME,
+        Prefix: prefix,
+      },
+      (err, data) => {
+        if (!err) {
+          return Promise.all(
+            data.Contents.map((content) => {
+              this.s3
+                .deleteObject({
+                  Bucket: this.BUCKET_NAME,
+                  Key: content.Key,
+                })
+                .promise();
+            }),
+          );
         }
-      }
-    })
+      },
+    );
   }
 
   getFileUploader(

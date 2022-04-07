@@ -101,7 +101,9 @@ export class AssetPacksService {
   }
 
   async remove(owner, id: string) {
-    const deletedCount = await this.assetPackModel.destroy({ where: { id, owner } });
+    const deletedCount = await this.assetPackModel.destroy({
+      where: { id, owner },
+    });
     if (deletedCount > 0) {
       await this.storageService.delete(`asset-packs/${id}`);
     }

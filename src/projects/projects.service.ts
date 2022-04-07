@@ -70,8 +70,10 @@ export class ProjectsService {
   }
 
   async findOne(owner: string, id: string): Promise<Project> {
-    const project = await this.projectModel.findOne({ where: { owner, id } });
-    if (!project) throw new NotFoundException('project not found');
+    const project = await this.projectModel.findOne({ where: { id } });
+    if (!project) throw new NotFoundException(`project ${id} not found`);
+    if (!project.is_public && project.owner != owner)
+      throw new UnauthorizedException(`cannot view project ${id}`);
     return project;
   }
 

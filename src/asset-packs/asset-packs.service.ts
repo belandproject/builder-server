@@ -100,8 +100,12 @@ export class AssetPacksService {
     return pack;
   }
 
-  remove(owner, id: string) {
-    return this.assetPackModel.destroy({ where: { id, owner } });
+  async remove(owner, id: string) {
+    const deletedCount = await this.assetPackModel.destroy({ where: { id, owner } });
+    if (deletedCount > 0) {
+      await this.storageService.delete(`asset-packs/${id}`);
+    }
+    return deletedCount;
   }
 
   async fileUpload(@Req() req, @Res() res, id: string, owner: string) {

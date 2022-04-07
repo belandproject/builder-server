@@ -21,6 +21,24 @@ export class StorageService {
     });
   }
 
+  async delete(prefix: string) {
+    console.log(prefix)
+    await this.s3.listObjects({
+      Bucket: this.BUCKET_NAME,
+      Prefix: prefix
+    }, async (err, data) => {
+      console.log(data);
+      if (!err) {
+        for (let content of data.Contents) {
+          this.s3.deleteObject({
+            Bucket: this.BUCKET_NAME,
+            Key: content.Key
+          })
+        }
+      }
+    })
+  }
+
   getFileUploader(
     options: { mimeTypes?: string[]; maxFileSize?: number },
     callback: (req: Request, file: Express.Multer.File) => string,

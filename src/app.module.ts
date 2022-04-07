@@ -9,6 +9,7 @@ import { ItemsModule } from './items/items.module';
 import { CollectionsModule } from './collections/collections.module';
 import { AssetPacksModule } from './asset-packs/asset-packs.module';
 import { AssetsModule } from './assets/assets.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AssetsModule } from './assets/assets.module';
     ItemsModule,
     AssetsModule,
     AssetPacksModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

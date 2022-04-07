@@ -1,14 +1,18 @@
 import {
   Injectable,
   NotFoundException,
+  Req,
+  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
+import { StorageService } from 'src/storage/storage.service';
 import { ListProjectResponseDto } from './dto/list-project-response.dto';
 import { UpsertProjectDto } from './dto/upsert-project.dto';
 import { Project } from './entities/project.entity';
+import mimeTypes from 'mime-types';
 
 const ATTRIBUTES = [
   'id',
@@ -23,11 +27,23 @@ const ATTRIBUTES = [
   'is_public',
 ];
 
+export const THUMBNAIL_FILE_NAME = 'thumbnail';
+const FILE_NAMES = [
+  THUMBNAIL_FILE_NAME,
+  'preview',
+  'north',
+  'east',
+  'south',
+  'west',
+];
+const MIME_TYPES = ['image/png', 'image/jpeg'];
+
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel(Project)
     private projectModel: typeof Project,
+    private readonly storageService: StorageService,
   ) {}
 
   findAll(owner, query: PaginateQuery): Promise<ListProjectResponseDto> {
@@ -73,5 +89,42 @@ export class ProjectsService {
 
   remove(owner: string, id: string) {
     return this.projectModel.destroy({ where: { id, owner } });
+  }
+
+  async fileUpload(@Req() req, @Res() res, id: string, owner: string) {
+    const project = await this.projectModel.findOne({
+      where: { id, owner },
+      attributes: ['id', 'thumbnail'],
+    });
+    if (!project) throw new NotFoundException(`project ${id} not found`);
+
+    const uploader = this.storageService.getFileUploader(
+      { mimeTypes: MIME_TYPES },
+      (req: Request, file: Express.Multer.File): string => {
+        const extension = mimeTypes.extension(file.mimetype);
+        const filename = `${file.fieldname}.${extension}`;
+        return `projects/${id}/${filename}`;
+      },
+    );
+
+    const uploadFileFields = FILE_NAMES.map((fieldName) => ({
+      name: fieldName,
+      maxCount: 1,
+    }));
+
+    await uploader.fields(uploadFileFields);
+
+    const reqFiles = req.files as Record<string, Express.Multer.File[]>;
+    const files = Object.values(reqFiles).map((files) => files[0]);
+    const thumbnail = files.find(
+      (file) => file.fieldname === THUMBNAIL_FILE_NAME,
+    );
+    if (thumbnail) {
+      const extension = mimeTypes.extension(thumbnail.mimetype);
+      await this.projectModel.update(
+        { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
+        { where: { id }, returning: false },
+      );
+    }
   }
 }

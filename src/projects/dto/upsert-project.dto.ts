@@ -3,7 +3,6 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -55,10 +54,6 @@ export class UpsertProjectDto {
 
   @IsString()
   description: string;
-
-  @IsOptional()
-  @IsString()
-  thumbnail: string;
 
   @IsNumber()
   cols: number;

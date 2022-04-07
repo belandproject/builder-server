@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Req, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
@@ -33,5 +33,15 @@ export class AssetPacksController {
   @Delete(':id')
   remove(@Param('id') id: string, @User('id') userId) {
     return this.assetPacksService.remove(userId, id);
+  }
+
+  @Post(':id/upload')
+  async upload(
+    @Req() req,
+    @Res() res,
+    @User('id') userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.assetPacksService.fileUpload(req, res, id, userId);
   }
 }

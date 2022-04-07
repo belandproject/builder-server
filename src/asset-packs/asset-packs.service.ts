@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   Req,
@@ -13,7 +14,7 @@ import { StorageService } from 'src/storage/storage.service';
 import { ListAssetPackResponseDto } from './dto/list-asset-pack-response.dto';
 import { UpsertAssetPackDto } from './dto/upsert-asset-pack.dto';
 import { AssetPack } from './entities/asset-pack.entity';
-import mimeTypes from 'mime-types';
+import * as mine from 'mime-types';
 
 const THUMBNAIL_FILE_NAME = 'thumbnail';
 const THUMBNAIL_MIME_TYPES = ['image/png', 'image/jpeg'];
@@ -104,7 +105,7 @@ export class AssetPacksService {
   }
 
   async fileUpload(@Req() req, @Res() res, id: string, owner: string) {
-    const project = await this.assetModel.findOne({
+    const project = await this.assetPackModel.findOne({
       where: { id, owner },
       attributes: ['id', 'thumbnail'],
     });
@@ -113,18 +114,23 @@ export class AssetPacksService {
     const uploader = this.storageService.getFileUploader(
       { mimeTypes: THUMBNAIL_MIME_TYPES },
       (req: Request, file: Express.Multer.File): string => {
-        const extension = mimeTypes.extension(file.mimetype);
+        const extension = mine.extension(file.mimetype);
         const filename = `${file.fieldname}.${extension}`;
         return `asset-packs/${id}/${filename}`;
       },
     );
 
-    await uploader.single(THUMBNAIL_FILE_NAME);
-    const thumbnail = req.file as Express.Multer.File; // using `single` on getFileUploaderMiddleware
-    const extension = mimeTypes.extension(thumbnail.mimetype);
-    await this.assetPackModel.update(
-      { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
-      { where: { id }, returning: false },
-    );
+    const handler = uploader.single(THUMBNAIL_FILE_NAME);
+    return handler(req, res, async (err) => {
+      if (err) {
+        throw new BadRequestException(err);
+      }
+      const thumbnail = req.file as Express.Multer.File; // using `single` on getFileUploaderMiddleware
+      const extension = mine.extension(thumbnail.mimetype);
+      await this.assetPackModel.update(
+        { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
+        { where: { id }, returning: false },
+      );
+    });
   }
 }

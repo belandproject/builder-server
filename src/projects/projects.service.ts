@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   Req,
@@ -12,7 +13,7 @@ import { StorageService } from 'src/storage/storage.service';
 import { ListProjectResponseDto } from './dto/list-project-response.dto';
 import { UpsertProjectDto } from './dto/upsert-project.dto';
 import { Project } from './entities/project.entity';
-import mimeTypes from 'mime-types';
+import * as mime from 'mime-types';
 
 const ATTRIBUTES = [
   'id',
@@ -91,6 +92,7 @@ export class ProjectsService {
     return this.projectModel.destroy({ where: { id, owner } });
   }
 
+
   async fileUpload(@Req() req, @Res() res, id: string, owner: string) {
     const project = await this.projectModel.findOne({
       where: { id, owner },
@@ -101,7 +103,7 @@ export class ProjectsService {
     const uploader = this.storageService.getFileUploader(
       { mimeTypes: MIME_TYPES },
       (req: Request, file: Express.Multer.File): string => {
-        const extension = mimeTypes.extension(file.mimetype);
+        const extension = mime.extension(file.mimetype);
         const filename = `${file.fieldname}.${extension}`;
         return `projects/${id}/${filename}`;
       },
@@ -111,20 +113,23 @@ export class ProjectsService {
       name: fieldName,
       maxCount: 1,
     }));
-
-    await uploader.fields(uploadFileFields);
-
-    const reqFiles = req.files as Record<string, Express.Multer.File[]>;
-    const files = Object.values(reqFiles).map((files) => files[0]);
-    const thumbnail = files.find(
-      (file) => file.fieldname === THUMBNAIL_FILE_NAME,
-    );
-    if (thumbnail) {
-      const extension = mimeTypes.extension(thumbnail.mimetype);
-      await this.projectModel.update(
-        { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
-        { where: { id }, returning: false },
+    const handler = uploader.fields(uploadFileFields);
+    await handler(req, res, async (error) => {
+      if (error) {
+        throw new BadRequestException(error);
+      }
+      const reqFiles = req.files as Record<string, Express.Multer.File[]>;
+      const files = Object.values(reqFiles).map((files) => files[0]);
+      const thumbnail = files.find(
+        (file) => file.fieldname === THUMBNAIL_FILE_NAME,
       );
-    }
+      if (thumbnail) {
+        const extension = mime.extension(thumbnail.mimetype);
+        await this.projectModel.update(
+          { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
+          { where: { id }, returning: false },
+        );
+      }
+    });
   }
 }

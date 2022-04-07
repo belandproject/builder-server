@@ -4,12 +4,12 @@ import { ProjectsController } from './projects.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Project } from './entities/project.entity';
 import { AuthenticationMiddleware } from 'src/common/middlewares/authentication.middleware';
-import { StorageService } from 'src/storage/storage.service';
+import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
   controllers: [ProjectsController],
-  providers: [ProjectsService, StorageService],
-  imports: [SequelizeModule.forFeature([Project])],
+  providers: [ProjectsService],
+  imports: [SequelizeModule.forFeature([Project]), StorageModule],
 })
 export class ProjectsModule {
   configure(consumer: MiddlewareConsumer) {

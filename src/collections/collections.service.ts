@@ -133,28 +133,29 @@ export class CollectionsService {
     await dbCol.save();
 
     const isNotSynced = dbItems.some((item) => !item.blockchain_item_id);
-    if (!isNotSynced) {
-      return { synced: false };
-    }
+    if (isNotSynced) {
+      const hubItems: { rows: any[] } = await fetch(
+        `${HUB_ENDPOINT}/items?tokenAddress=${dbCol.contract_address}&limit=1000`,
+      ).then((res) => res.json());
 
-    const hubItems: any[] = await fetch(
-      `${HUB_ENDPOINT}/items?tokenAddress=${dbCol.contract_address}&limit=1000`,
-    ).then((res) => res.json().rows);
-
-    const updates = [];
-    for (let i = 0; i <= dbItems.length; i++) {
-      const hubItem = hubItems.find(
-        (remoteItem) => Number(remoteItem.itemId) === i,
-      );
-      if (!hubItem) {
-        throw new BadRequestException('UnpublishedItem');
+      const updates = [];
+      for (let i = 0; i < dbItems.length; i++) {
+        const hubItem = hubItems.rows.find(
+          (remoteItem) => Number(remoteItem.itemId) === i,
+        );
+        if (!hubItem) {
+          throw new BadRequestException('UnpublishedItem');
+        }
+        dbItems[i].blockchain_item_id = hubItem.itemId;
+        updates.push(dbItems[i].save());
       }
-      dbItems[i].blockchain_item_id = hubItem.itemId;
-      updates.push(dbItems[i].save());
+      await Promise.all(updates);
     }
-    await Promise.all(updates);
 
-    return { synced: true };
+    return {
+      collection: dbCol,
+      items: dbItems,
+    };
   }
 }
 

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import {
@@ -27,6 +32,28 @@ export class CollectionsService {
     this.initCodeHash = this.configService.get('NFT_INIT_CODE_HASH');
   }
 
+  async lock(owner: string, id: string) {
+    const lockedAt = new Date();
+    const [affectedCount] = await this.collectionModel.update(
+      {
+        locked_at: lockedAt,
+      },
+      {
+        where: {
+          id,
+          owner,
+          locked_at: null,
+        },
+      },
+    );
+
+    if (affectedCount == 0) throw new BadRequestException('cannot lock');
+    return {
+      id: id,
+      locked_at: lockedAt,
+    };
+  }
+
   async upsert(owner: string, id: string, data: UpsertCollectionDto) {
     const collection = await this.collectionModel.findByPk(id);
     if (!collection) {
@@ -43,6 +70,11 @@ export class CollectionsService {
         owner,
       });
     }
+
+    if (collection.owner != owner || collection.locked_at != null) {
+      throw new UnauthorizedException('cannot update collection');
+    }
+
     collection.setAttributes(data);
     return collection.save();
   }

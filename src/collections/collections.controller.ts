@@ -30,6 +30,11 @@ export class CollectionsController {
     return this.collectionsService.upsert(userId, id, data);
   }
 
+  @Post(':id/lock')
+  lock(@Param('id') id: string, @User('id') userId) {
+    return this.collectionsService.lock(userId, id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string, @User('id') userId) {
     return this.collectionsService.remove(userId, id);

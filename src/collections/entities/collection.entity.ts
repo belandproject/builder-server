@@ -33,7 +33,7 @@ export class Collection extends Model {
   symbol: string;
 
   @Column
-  urn: string
+  urn: string;
 
   @Index
   @AllowNull(false)

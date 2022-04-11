@@ -35,6 +35,11 @@ export class CollectionsController {
     return this.collectionsService.lock(userId, id);
   }
 
+  @Post(':id/sync')
+  sync(@Param('id') id: string) {
+    return this.collectionsService.sync(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string, @User('id') userId) {
     return this.collectionsService.remove(userId, id);

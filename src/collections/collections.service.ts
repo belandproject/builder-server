@@ -14,9 +14,12 @@ import {
 import { Op } from 'sequelize';
 import { PaginateQuery } from 'src/common/paginate/decorator';
 import { paginate } from 'src/common/paginate/paginate';
+import { Item } from 'src/items/entities/item.entity';
 import { ListCollectionResponseDto } from './dto/list-collection-response.dto';
 import { UpsertCollectionDto } from './dto/upsert-collection.dto';
 import { Collection } from './entities/collection.entity';
+
+const HUB_ENDPOINT = 'https://nft-api-test.beland.io/v1';
 
 @Injectable()
 export class CollectionsService {
@@ -26,6 +29,8 @@ export class CollectionsService {
   constructor(
     @InjectModel(Collection)
     private collectionModel: typeof Collection,
+    @InjectModel(Item)
+    private itemModel: typeof Item,
     private configService: ConfigService,
   ) {
     this.factoryAddress = this.configService.get('NFT_FACTORY');
@@ -106,6 +111,50 @@ export class CollectionsService {
     await this.collectionModel.destroy({
       where: { id, owner, is_published: false, locked_at: null },
     });
+  }
+
+  async sync(id: string) {
+    const dbCol = await this.collectionModel.findByPk(id);
+    if (!dbCol) throw new NotFoundException('collection not found');
+
+    const removeCol = await fetch(
+      `${HUB_ENDPOINT}/collections/${dbCol.contract_address}`,
+    ).then((res) => res.json());
+
+    const dbItems = await this.itemModel.findAll({
+      where: {
+        collection_id: id,
+      },
+      order: [['created_at', 'ASC']],
+    });
+
+    dbCol.is_published = true;
+    dbCol.is_approved = removeCol.isApproved;
+    await dbCol.save();
+
+    const isNotSynced = dbItems.some((item) => !item.blockchain_item_id);
+    if (!isNotSynced) {
+      return { synced: false };
+    }
+
+    const hubItems: any[] = await fetch(
+      `${HUB_ENDPOINT}/items?tokenAddress=${dbCol.contract_address}&limit=1000`,
+    ).then((res) => res.json().rows);
+
+    const updates = [];
+    for (let i = 0; i <= dbItems.length; i++) {
+      const hubItem = hubItems.find(
+        (remoteItem) => Number(remoteItem.itemId) === i,
+      );
+      if (!hubItem) {
+        throw new BadRequestException('UnpublishedItem');
+      }
+      dbItems[i].blockchain_item_id = hubItem.itemId;
+      updates.push(dbItems[i].save());
+    }
+    await Promise.all(updates);
+
+    return { synced: true };
   }
 }
 

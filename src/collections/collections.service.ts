@@ -84,9 +84,12 @@ export class CollectionsService {
     return collection.save();
   }
 
-  findAll(owner, query: PaginateQuery): Promise<ListCollectionResponseDto> {
-    return paginate(query, this.collectionModel, {
-      maxLimit: 1000,
+  async findAll(
+    owner,
+    query: PaginateQuery,
+  ): Promise<ListCollectionResponseDto> {
+    const data: any = await paginate(query, this.collectionModel, {
+      maxLimit: 100,
       defaultLimit: 30,
       where: { owner },
       sortableColumns: ['id'],
@@ -97,6 +100,28 @@ export class CollectionsService {
         owner: [Op.in],
       },
     });
+    const collectionIds: string[] = data.rows.map(
+      (row) => row.contract_address,
+    );
+    const remoteCollections: { rows: any[] } = await fetch(
+      `${HUB_ENDPOINT}/collections?id=${collectionIds.join(',')}`,
+    ).then((res) => res.json());
+    const remoteCollectionById = {};
+    for (const col of remoteCollections.rows) {
+      remoteCollectionById[col.id] = col;
+    }
+
+    data.rows = data.rows.map((row) => {
+      const remote = remoteCollectionById[row.contract_address];
+      if (remote) {
+        row.is_published = true;
+        row.is_approved = remote.isApproved;
+        row.minters = remote.minters;
+      }
+      return row;
+    });
+
+    return data as any;
   }
 
   async findOne(owner: string, id: string) {

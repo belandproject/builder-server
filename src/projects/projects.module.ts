@@ -5,6 +5,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Project } from './entities/project.entity';
 import { AuthenticationMiddleware } from 'src/common/middlewares/authentication.middleware';
 import { StorageModule } from 'src/storage/storage.module';
+import { OptionalAuthenticationMiddleware } from 'src/common/middlewares/optional-authentication.middleware';
 
 @Module({
   controllers: [ProjectsController],
@@ -13,12 +14,34 @@ import { StorageModule } from 'src/storage/storage.module';
 })
 export class ProjectsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthenticationMiddleware)
-      .exclude({
+    consumer.apply(AuthenticationMiddleware).forRoutes(
+      {
+        path: '/v1/projects/:id',
+        method: RequestMethod.GET,
+      },
+      {
+        path: '/v1/projects/:id',
+        method: RequestMethod.POST,
+      },
+      {
+        path: '/v1/projects/:id',
+        method: RequestMethod.DELETE,
+      },
+      {
+        path: '/v1/projects/:id/upload',
+        method: RequestMethod.POST,
+      },
+    );
+
+    consumer.apply(OptionalAuthenticationMiddleware).forRoutes(
+      {
+        path: '/v1/projects/:id',
+        method: RequestMethod.GET,
+      },
+      {
         path: '/v1/projects',
-        method: RequestMethod.OPTIONS,
-      })
-      .forRoutes('/v1/projects/(.*)', '/v1/projects');
+        method: RequestMethod.GET,
+      },
+    );
   }
 }

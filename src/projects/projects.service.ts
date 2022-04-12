@@ -48,11 +48,15 @@ export class ProjectsService {
   ) {}
 
   findAll(owner, query: PaginateQuery): Promise<ListProjectResponseDto> {
-    const where: { owner?: string } = {};
-    if (query.filter && !query.filter.is_public) {
+    const where: any = {};
+    if (!owner) {
+      where.is_public = true;
+    } else {
       where.owner = owner;
     }
-
+    if (query.filter && query.filter.is_public) {
+      delete where.owner;
+    }
     return paginate(query, this.projectModel, {
       maxLimit: 100,
       defaultLimit: 30,

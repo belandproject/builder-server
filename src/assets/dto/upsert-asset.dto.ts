@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
@@ -49,6 +49,9 @@ export class UpsertAssetDto {
   @IsOptional()
   @IsString()
   script: string;
+
+  @Exclude()
+  owner: string
 
   @IsOptional()
   @IsString()

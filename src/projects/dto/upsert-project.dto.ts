@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -48,26 +48,34 @@ export class Scene {
   components: Map<string, SceneComponentAttribute>;
 }
 
+@Exclude()
 export class UpsertProjectDto {
+  @Expose()
   @IsString()
   name: string;
 
+  @Expose()
   @IsString()
   description: string;
 
+  @Expose()
   @IsNumber()
   cols: number;
 
+  @Expose()
   @IsNumber()
   rows: number;
 
+  @Expose()
   @IsBoolean()
   is_public: boolean;
 
+  @Expose()
   @Type(() => Scene)
   @ValidateNested()
   scene: Scene;
 
+  @Expose()
   @IsOptional()
   @IsString()
   creation_coords: string;

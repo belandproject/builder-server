@@ -1,5 +1,5 @@
 import { WearableCategory } from '@dcl/schemas';
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 
 import {
   IsArray,
@@ -100,6 +100,12 @@ export class UpsertItemDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsUUID(4)
+  id: string
+
+  @Exclude()
+  owner: string
 
   @IsString()
   @IsOptional()

@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
+import { plainToClass, instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
@@ -22,7 +22,7 @@ export class ValidationPipe implements PipeTransform<any> {
     if (errors.length > 0) {
       throw new BadRequestException(errors);
     }
-    return object;
+    return instanceToPlain(object);
   }
 
   private toValidate(metatype: Function): boolean {

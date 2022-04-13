@@ -1,9 +1,6 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
-  Req,
-  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -17,7 +14,6 @@ import { AssetPack } from './entities/asset-pack.entity';
 import * as mine from 'mime-types';
 
 const THUMBNAIL_FILE_NAME = 'thumbnail';
-const THUMBNAIL_MIME_TYPES = ['image/png', 'image/jpeg'];
 
 @Injectable()
 export class AssetPacksService {
@@ -110,33 +106,26 @@ export class AssetPacksService {
     return deletedCount;
   }
 
-  async fileUpload(@Req() req, @Res() res, id: string, owner: string) {
-    const project = await this.assetPackModel.findOne({
+  async fileUpload(file: Express.Multer.File, owner: string, id: string) {
+    const pack = await this.assetPackModel.findOne({
       where: { id, owner },
-      attributes: ['id', 'thumbnail'],
+      attributes: ['id'],
     });
-    if (!project) throw new NotFoundException(`asset pack ${id} not found`);
+    if (!pack) throw new NotFoundException(`asset pack ${id} not found`);
 
-    const uploader = this.storageService.getFileUploader(
-      { mimeTypes: THUMBNAIL_MIME_TYPES },
-      (req: Request, file: Express.Multer.File): string => {
+    await this.storageService.upload(
+      file,
+      (file: Express.Multer.File): string => {
         const extension = mine.extension(file.mimetype);
         const filename = `${file.fieldname}.${extension}`;
         return `asset-packs/${id}/${filename}`;
       },
     );
 
-    const handler = uploader.single(THUMBNAIL_FILE_NAME);
-    return handler(req, res, async (err) => {
-      if (err) {
-        throw new BadRequestException(err);
-      }
-      const thumbnail = req.file as Express.Multer.File; // using `single` on getFileUploaderMiddleware
-      const extension = mine.extension(thumbnail.mimetype);
-      await this.assetPackModel.update(
-        { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
-        { where: { id }, returning: false },
-      );
-    });
+    const extension = mine.extension(file.mimetype);
+    await this.assetPackModel.update(
+      { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
+      { where: { id }, returning: false },
+    );
   }
 }

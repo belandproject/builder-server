@@ -37,7 +37,6 @@ const FILE_NAMES = [
   'south',
   'west',
 ];
-const MIME_TYPES = ['image/png', 'image/jpeg'];
 
 @Injectable()
 export class ProjectsService {
@@ -110,43 +109,33 @@ export class ProjectsService {
     return deletedCount;
   }
 
-  async fileUpload(@Req() req, @Res() res, id: string, owner: string) {
+  async fileUpload(
+    files: Map<string, Express.Multer.File[]>,
+    owner: string,
+    id: string,
+  ) {
     const project = await this.projectModel.findOne({
       where: { id, owner },
-      attributes: ['id', 'thumbnail'],
+      attributes: ['id'],
     });
     if (!project) throw new NotFoundException(`project ${id} not found`);
 
-    const uploader = this.storageService.getFileUploader(
-      { mimeTypes: MIME_TYPES },
-      (req: Request, file: Express.Multer.File): string => {
+    await this.storageService.updateFields(
+      files,
+      (file: Express.Multer.File): string => {
         const extension = mime.extension(file.mimetype);
         const filename = `${file.fieldname}.${extension}`;
         return `projects/${id}/${filename}`;
       },
     );
-
-    const uploadFileFields = FILE_NAMES.map((fieldName) => ({
-      name: fieldName,
-      maxCount: 1,
-    }));
-    const handler = uploader.fields(uploadFileFields);
-    await handler(req, res, async (error) => {
-      if (error) {
-        throw new BadRequestException(error);
-      }
-      const reqFiles = req.files as Record<string, Express.Multer.File[]>;
-      const files = Object.values(reqFiles).map((files) => files[0]);
-      const thumbnail = files.find(
-        (file) => file.fieldname === THUMBNAIL_FILE_NAME,
+    if (!files[THUMBNAIL_FILE_NAME]) return;
+    const thumbnail = files[THUMBNAIL_FILE_NAME].find((file) => file.fieldname == THUMBNAIL_FILE_NAME);
+    if (thumbnail) {
+      const extension = mime.extension(thumbnail.mimetype);
+      await this.projectModel.update(
+        { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
+        { where: { id }, returning: false },
       );
-      if (thumbnail) {
-        const extension = mime.extension(thumbnail.mimetype);
-        await this.projectModel.update(
-          { thumbnail: `${THUMBNAIL_FILE_NAME}.${extension}` },
-          { where: { id }, returning: false },
-        );
-      }
-    });
+    }
   }
 }

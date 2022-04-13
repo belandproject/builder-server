@@ -5,14 +5,16 @@ import {
   Body,
   Param,
   Delete,
-  Res,
-  Req,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { Paginate, PaginateQuery } from 'src/common/paginate/decorator';
 import { User } from 'src/common/user.decorator';
 import { UpsertProjectDto } from './dto/upsert-project.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+const MIME_TYPES = ['image/png', 'image/jpeg'];
 
 @ApiBearerAuth()
 @ApiTags('Projects')
@@ -45,12 +47,33 @@ export class ProjectsController {
   }
 
   @Post(':id/upload')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'thumbnail', maxCount: 1 },
+        { name: 'preview', maxCount: 1 },
+        { name: 'north', maxCount: 1 },
+        { name: 'east', maxCount: 1 },
+        { name: 'south', maxCount: 1 },
+        { name: 'west', maxCount: 1 },
+      ],
+      {
+        limits: { fileSize: 10000000 },
+        fileFilter: (_, file, cb) => {
+          if (MIME_TYPES.length > 0) {
+            cb(null, MIME_TYPES.includes(file.mimetype));
+          } else {
+            cb(null, true);
+          }
+        },
+      },
+    ),
+  )
   async upload(
-    @Req() req,
-    @Res() res,
+    @UploadedFiles() files: Map<string, Express.Multer.File[]>,
     @User('id') userId: string,
     @Param('id') id: string,
   ) {
-    return this.projectsService.fileUpload(req, res, id, userId);
+    return this.projectsService.fileUpload(files, userId, id);
   }
 }

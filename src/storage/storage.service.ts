@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as multer from 'multer';
 import * as AWS from 'aws-sdk';
-import * as multerS3 from 'multer-s3';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -44,35 +42,24 @@ export class StorageService {
     );
   }
 
-  getFileUploader(
-    options: { mimeTypes?: string[]; maxFileSize?: number },
-    callback: (req: Request, file: Express.Multer.File) => string,
-  ) {
-    const { mimeTypes = [], maxFileSize = this.MAX_FILE_SIZE } = options;
-
-    return multer({
-      limits: {
-        fileSize: maxFileSize,
-      },
-      fileFilter: function (_, file, cb) {
-        if (mimeTypes.length > 0) {
-          cb(null, mimeTypes.includes(file.mimetype));
-        } else {
-          cb(null, true);
-        }
-      },
-      storage: multerS3({
-        s3: this.s3,
-        bucket: this.BUCKET_NAME,
-        acl: 'public-read',
-        key: (request, file, cb) => {
-          try {
-            cb(null, callback(request as Request, file));
-          } catch (error) {
-            cb(error, '');
-          }
-        },
+  updateFields(files: Map<string, Express.Multer.File[]>, getKeyFn) {
+    return Promise.all(
+      Object.keys(files).map((filename) => {
+        return Promise.all(
+          files[filename].map((file) => this.upload(file, getKeyFn)),
+        );
       }),
-    });
+    );
+  }
+
+  upload(file: Express.Multer.File, getKeyFn) {
+    return this.s3
+      .upload({
+        Bucket: this.BUCKET_NAME,
+        ACL: 'public-read',
+        Key: getKeyFn(file),
+        Body: file.buffer,
+      })
+      .promise();
   }
 }

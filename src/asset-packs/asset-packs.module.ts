@@ -21,7 +21,11 @@ export class AssetPacksModule {
         path: '/v1/asset-packs',
         method: RequestMethod.GET,
       })
-      .forRoutes('/v1/asset-packs/(.*)', '/v1/asset-packs');
+      .forRoutes(
+        '/v1/asset-packs/(.*)',
+        '/v1/asset-packs',
+        '/v1/asset-packs/(.*)/upload',
+      );
 
     consumer.apply(OptionalAuthenticationMiddleware).forRoutes({
       path: '/v1/asset-packs',

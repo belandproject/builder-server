@@ -59,7 +59,7 @@ export class AssetPacksController {
       },
     }),
   )
-  async upload(
+  upload(
     @UploadedFile() file: Express.Multer.File,
     @User('id') userId: string,
     @Param('id') id: string,

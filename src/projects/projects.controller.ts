@@ -69,7 +69,7 @@ export class ProjectsController {
       },
     ),
   )
-  async upload(
+  upload(
     @UploadedFiles() files: Map<string, Express.Multer.File[]>,
     @User('id') userId: string,
     @Param('id') id: string,

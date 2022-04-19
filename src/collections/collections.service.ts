@@ -104,7 +104,7 @@ export class CollectionsService {
       (row) => row.contract_address,
     );
     const remoteCollections: { rows: any[] } = await fetch(
-      `${HUB_ENDPOINT}/collections?id=${collectionIds.join(',')}`,
+      `${HUB_ENDPOINT}/collections?id__in=${collectionIds.join(',')}`,
     ).then((res) => res.json());
     const remoteCollectionById = {};
     for (const col of remoteCollections.rows) {

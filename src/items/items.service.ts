@@ -21,13 +21,16 @@ export class ItemsService {
     private itemModel: typeof Item,
     @InjectModel(Collection)
     private collectionModel: typeof Collection,
-    private configSrv: ConfigService
+    private configSrv: ConfigService,
   ) {
     this.hub = this.configSrv.get('HUB_ENDPOINT');
   }
 
-  async findAll(owner: string, query: PaginateQuery): Promise<ListItemResponseDto> {
-    const data : any = await  paginate(query, this.itemModel, {
+  async findAll(
+    owner: string,
+    query: PaginateQuery,
+  ): Promise<ListItemResponseDto> {
+    const data: any = await paginate(query, this.itemModel, {
       sortableColumns: ['id'],
       searchableColumns: [],
       where: { owner },
@@ -41,21 +44,22 @@ export class ItemsService {
       },
     });
 
-    const itemIds: string[] = data.rows.map(
-      (row) => row.blockchain_item_id,
-    );
+    const itemIds: string[] = data.rows
+      .filter((r) => r.token_address != '')
+      .map((row) => row.token_address + '-' + row.blockchain_item_id);
 
-    const removeItems: { rows: any[] } = await fetch(
+    const rItems: { rows: any[] } = await fetch(
       `${this.hub}/items?id__in=${itemIds.join(',')}&limit=${itemIds.length}`,
     ).then((res) => res.json());
 
-    const removeItemById = {};
-    for (const removeItem of removeItems.rows) {
-      removeItemById[removeItem.id] = removeItem;
+    const byId = {};
+    for (const rItem of rItems.rows) {
+      byId[rItem.id] = rItem;
     }
 
     data.rows = data.rows.map((row) => {
-      const remote = removeItemById[row.blockchain_item_id];
+      row = row.toJSON();
+      const remote = byId[row.token_address + '-' + row.blockchain_item_id];
       if (remote) {
         row.is_published = true;
         row.total_supply = remote.totalSupply;
@@ -92,7 +96,6 @@ export class ItemsService {
       if (upsertData.collection_id) {
         await this._canAddItem(upsertData.collection_id, owner);
       }
-
 
       return this.itemModel.create({
         ...upsertData,

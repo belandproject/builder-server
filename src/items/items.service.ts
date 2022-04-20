@@ -12,6 +12,7 @@ import { paginate } from 'src/common/paginate/paginate';
 import { ListItemResponseDto } from './dto/list-item-response.dto';
 import { UpsertItemDto } from './dto/upsert-item.dto';
 import { Item } from './entities/item.entity';
+import * as _ from 'lodash';
 
 @Injectable()
 export class ItemsService {
@@ -35,8 +36,8 @@ export class ItemsService {
       searchableColumns: [],
       where: { owner },
       defaultSortBy: [['id', 'DESC']],
-      defaultLimit: 30,
-      maxLimit: 100,
+      defaultLimit: 1000,
+      maxLimit: 1000,
       filterableColumns: {
         id: [],
         owner: [],
@@ -44,30 +45,50 @@ export class ItemsService {
       },
     });
 
-    const itemIds: string[] = data.rows
+    const [rItems, rCollections] = await Promise.all([
+      this._getRemoteItems(data.rows),
+      this._getRemoteCollections(data.rows),
+    ]);
+    data.rows = await this._mergeItems(data.rows, rItems, rCollections);
+    return data;
+  }
+
+  async _getRemoteCollections(items) {
+    const ids: string[] = items
+      .filter((r) => r.token_address != '')
+      .map((row) => row.token_address);
+    const res: { rows: any[] } = await fetch(
+      `${this.hub}/collections?id__in=${ids.join(',')}&limit=${ids.length}`,
+    ).then((res) => res.json());
+    return res.rows;
+  }
+
+  async _getRemoteItems(items) {
+    const itemIds: string[] = items
       .filter((r) => r.token_address != '')
       .map((row) => row.token_address + '-' + row.blockchain_item_id);
-
-    const rItems: { rows: any[] } = await fetch(
+    const res: { rows: any[] } = await fetch(
       `${this.hub}/items?id__in=${itemIds.join(',')}&limit=${itemIds.length}`,
     ).then((res) => res.json());
+    return res.rows;
+  }
 
-    const byId = {};
-    for (const rItem of rItems.rows) {
-      byId[rItem.id] = rItem;
-    }
-
-    data.rows = data.rows.map((row) => {
-      row = row.toJSON();
-      const remote = byId[row.token_address + '-' + row.blockchain_item_id];
+  _mergeItems(dbItems, remoteItems, rCollections) {
+    const byId: any = _.keyBy(remoteItems, 'id');
+    const colById: any = _.keyBy(rCollections, 'id');
+    return dbItems.map((item) => {
+      item = item.toJSON();
+      const remote = byId[item.token_address + '-' + item.blockchain_item_id];
       if (remote) {
-        row.is_published = true;
-        row.total_supply = remote.totalSupply;
+        item.is_published = true;
+        item.is_approved = colById[item.token_address].isApproved;
+        item.total_supply = remote.totalSupply;
+        item.price = remote.pricePerUnit;
+        item.on_sale = remote.onSale;
+        item.blockchain_item_id = String(item.blockchain_item_id);
       }
-      return row;
+      return item;
     });
-
-    return data;
   }
 
   async findOne(owner: string, id: string) {

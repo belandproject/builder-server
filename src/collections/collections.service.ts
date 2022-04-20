@@ -19,12 +19,11 @@ import { ListCollectionResponseDto } from './dto/list-collection-response.dto';
 import { UpsertCollectionDto } from './dto/upsert-collection.dto';
 import { Collection } from './entities/collection.entity';
 
-const HUB_ENDPOINT = 'https://nft-api-test.beland.io/v1';
-
 @Injectable()
 export class CollectionsService {
   public factoryAddress;
   public initCodeHash;
+  public hub;
 
   constructor(
     @InjectModel(Collection)
@@ -35,6 +34,7 @@ export class CollectionsService {
   ) {
     this.factoryAddress = this.configService.get('NFT_FACTORY');
     this.initCodeHash = this.configService.get('NFT_INIT_CODE_HASH');
+    this.hub = this.configService.get('HUB_ENDPOINT');
   }
 
   async lock(owner: string, id: string) {
@@ -104,7 +104,7 @@ export class CollectionsService {
       (row) => row.contract_address,
     );
     const remoteCollections: { rows: any[] } = await fetch(
-      `${HUB_ENDPOINT}/collections?id__in=${collectionIds.join(',')}&limit=${collectionIds.length}`,
+      `${this.hub}/collections?id__in=${collectionIds.join(',')}&limit=${collectionIds.length}`,
     ).then((res) => res.json());
     const remoteCollectionById = {};
     for (const col of remoteCollections.rows) {
@@ -143,7 +143,7 @@ export class CollectionsService {
     if (!dbCol) throw new NotFoundException('collection not found');
 
     const removeCol = await fetch(
-      `${HUB_ENDPOINT}/collections/${dbCol.contract_address}`,
+      `${this.hub}/collections/${dbCol.contract_address}`,
     ).then((res) => res.json());
 
     const dbItems = await this.itemModel.findAll({
@@ -160,7 +160,7 @@ export class CollectionsService {
     const isNotSynced = dbItems.some((item) => !item.blockchain_item_id);
     if (isNotSynced) {
       const hubItems: { rows: any[] } = await fetch(
-        `${HUB_ENDPOINT}/items?tokenAddress=${dbCol.contract_address}&limit=1000`,
+        `${this.hub}/items?tokenAddress=${dbCol.contract_address}&limit=1000`,
       ).then((res) => res.json());
 
       const updates = [];

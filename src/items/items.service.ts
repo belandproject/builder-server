@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { PaginateQuery } from 'src/common/paginate/decorator';
@@ -14,15 +15,19 @@ import { Item } from './entities/item.entity';
 
 @Injectable()
 export class ItemsService {
+  public hub: string;
   constructor(
     @InjectModel(Item)
     private itemModel: typeof Item,
     @InjectModel(Collection)
     private collectionModel: typeof Collection,
-  ) {}
+    private configSrv: ConfigService
+  ) {
+    this.hub = this.configSrv.get('HUB_ENDPOINT');
+  }
 
-  findAll(owner: string, query: PaginateQuery): Promise<ListItemResponseDto> {
-    return paginate(query, this.itemModel, {
+  async findAll(owner: string, query: PaginateQuery): Promise<ListItemResponseDto> {
+    const data : any = await  paginate(query, this.itemModel, {
       sortableColumns: ['id'],
       searchableColumns: [],
       where: { owner },
@@ -35,6 +40,30 @@ export class ItemsService {
         collection_id: [],
       },
     });
+
+    const itemIds: string[] = data.rows.map(
+      (row) => row.blockchain_item_id,
+    );
+
+    const removeItems: { rows: any[] } = await fetch(
+      `${this.hub}/items?id__in=${itemIds.join(',')}&limit=${itemIds.length}`,
+    ).then((res) => res.json());
+
+    const removeItemById = {};
+    for (const removeItem of removeItems.rows) {
+      removeItemById[removeItem.id] = removeItem;
+    }
+
+    data.rows = data.rows.map((row) => {
+      const remote = removeItemById[row.blockchain_item_id];
+      if (remote) {
+        row.is_published = true;
+        row.total_supply = remote.totalSupply;
+      }
+      return row;
+    });
+
+    return data;
   }
 
   async findOne(owner: string, id: string) {

@@ -50,12 +50,12 @@ export class Item extends Model {
   @Column
   blockchain_item_id: number;
 
+  @Column
+  token_address: string
+
   @Default(0)
   @Column
   total_supply: number;
-
-  @Column
-  content_hash: string;
 
   @Default(0)
   @Column

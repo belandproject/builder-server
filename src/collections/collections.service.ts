@@ -172,6 +172,7 @@ export class CollectionsService {
           throw new BadRequestException('UnpublishedItem');
         }
         dbItems[i].blockchain_item_id = hubItem.itemId;
+        dbItems[i].token_address = hubItem.tokenAddress;
         updates.push(dbItems[i].save());
       }
       await Promise.all(updates);

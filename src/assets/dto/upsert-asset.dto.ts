@@ -96,6 +96,7 @@ export class Parameter {
   @IsBoolean()
   default?: boolean;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested()
   @Type(() => Option)

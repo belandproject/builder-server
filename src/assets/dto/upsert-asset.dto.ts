@@ -92,7 +92,8 @@ export class Parameter {
 
   @IsString()
   label: string;
-
+  
+  @IsOptional()
   @IsBoolean()
   default?: boolean;
 

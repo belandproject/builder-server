@@ -31,7 +31,7 @@ export class AssetPacksService {
   ): Promise<ListAssetPackResponseDto> {
     const where: { owner: string } = { owner: owner ? owner : '' };
     if (query.filter && query.filter.owner == 'default') {
-      where.owner = 'default';
+      where.owner = process.env.DEFAULT_ASSET_PACK_ADDRESS;
     } else if (!owner || owner != query.filter.owner) {
       throw new UnauthorizedException('Unauthorized');
     }

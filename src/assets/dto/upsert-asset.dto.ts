@@ -1,6 +1,7 @@
 import { Exclude, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -51,7 +52,7 @@ export class UpsertAssetDto {
   script: string;
 
   @Exclude()
-  owner: string
+  owner: string;
 
   @IsOptional()
   @IsString()
@@ -88,11 +89,12 @@ export class Parameter {
 
   @IsEnum(ParameterType)
   type: ParameterType;
+
   @IsString()
   label: string;
 
-  @IsString()
-  default?: string;
+  @IsBoolean()
+  default?: boolean;
 
   @IsArray()
   @ValidateNested()

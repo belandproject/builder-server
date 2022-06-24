@@ -1,5 +1,11 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { UpsertAssetDto } from 'src/assets/dto/upsert-asset.dto';
 
 @Exclude()
@@ -14,5 +20,5 @@ export class UpsertAssetPackDto {
   @IsArray()
   @ValidateNested()
   @Type(() => UpsertAssetDto)
-  assets: UpsertAssetDto[]
+  assets: UpsertAssetDto[];
 }
